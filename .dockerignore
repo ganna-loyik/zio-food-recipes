@@ -1,0 +1,9 @@
+/.idea
+/.idea_modules
+/.project
+/.settings
+.bloop
+.metals
+.vscode
+metals.sbt
+postgres-data

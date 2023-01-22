@@ -1,0 +1,10 @@
+target
+/.idea
+/.idea_modules
+/.project
+.bloop
+.metals
+.vscode
+metals.sbt
+.scalafmt.conf
+postgres-data
