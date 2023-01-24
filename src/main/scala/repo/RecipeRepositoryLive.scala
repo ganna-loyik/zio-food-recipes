@@ -17,16 +17,16 @@ final class RecipeRepositoryLive(ds: DataSource, ctx: PostgresZioJdbcContext[Plu
   import ctx._
 
   inline def recipes = quote {
-    querySchema[Recipe]("recipes", _.id -> "id", _.description -> "description")
+    querySchema[Recipe]("recipes", _.id -> "id", _.name -> "name", _.description -> "description")
   }
 
-  def add(description: String): IO[RepositoryError, Long] =
+  def add(name: String, description: Option[String]): IO[RepositoryError, RecipeId] =
     ctx
-      .run(quote(recipes.insert(_.description -> lift(description)).returningGenerated(_.id)))
-      .mapError(e => RepositoryError(e))
+      .run(quote(recipes.insert(_.name -> lift(name), _.description -> lift(description)).returningGenerated(_.id)))
+      .mapError(RepositoryError(_))
       .provide(dsLayer)
 
-  def delete(id: Long): IO[RepositoryError, Unit] =
+  def delete(id: RecipeId): IO[RepositoryError, Unit] =
     ctx
       .run(quote(recipes.filter(i => i.id == lift(id)).delete))
       .mapError(e => new RepositoryError(e))
@@ -39,7 +39,7 @@ final class RecipeRepositoryLive(ds: DataSource, ctx: PostgresZioJdbcContext[Plu
       .provide(dsLayer)
       .mapError(e => new RepositoryError(e))
 
-  def getById(id: Long): IO[RepositoryError, Option[Recipe]] =
+  def getById(id: RecipeId): IO[RepositoryError, Option[Recipe]] =
     ctx
       .run(quote(recipes.filter(_.id == lift(id))))
       .map(_.headOption)
@@ -51,7 +51,7 @@ final class RecipeRepositoryLive(ds: DataSource, ctx: PostgresZioJdbcContext[Plu
       .run(quote {
         recipes
           .filter(i => i.id == lift(recipe.id))
-          .update(_.description -> lift(recipe.description))
+          .update(_.name -> lift(recipe.name), _.description -> lift(recipe.description))
       })
       .mapError(e => new RepositoryError(e))
       .provide(dsLayer)

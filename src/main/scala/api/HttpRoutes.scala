@@ -4,7 +4,7 @@ import zhttp.http.*
 import zhttp.service.*
 import zio.*
 import zio.json.*
-import domain.DomainError
+import domain.{DomainError, RecipeId}
 import protocol.*
 import service.RecipeService
 import service.RecipeService.*
@@ -17,27 +17,26 @@ object HttpRoutes:
     case Method.GET -> !! / "recipes" =>
       getAllRecipes().map(recipes =>
         Response.json(
-          GetRecipes(recipes.map(recipe => GetRecipe(recipe.id, recipe.description))).toJson
+          GetRecipes(recipes.map(recipe => GetRecipe(recipe.id.value, recipe.name, recipe.description))).toJson
         )
       )
 
     case Method.GET -> !! / "recipes" / id =>
-      getRecipeById(id.toLong)
+      getRecipeById(RecipeId(id.toLong))
         .map {
-          case Some(recipe) => Response.json(GetRecipe(recipe.id, recipe.description).toJson)
-          case None       => Response.status(Status.NotFound)
+          case Some(recipe) => Response.json(GetRecipe(recipe.id.value, recipe.name, recipe.description).toJson)
+          case None         => Response.status(Status.NotFound)
         }
 
     case Method.DELETE -> !! / "recipes" / id =>
-      deleteRecipe(id.toLong)
-        .map(_ => Response.ok)
+      deleteRecipe(RecipeId(id.toLong)).map(_ => Response.ok)
 
     case req @ Method.POST -> !! / "recipes" =>
       (for
         body <- entity[CreateRecipe](req).absolve
           .tapError(_ => ZIO.logInfo(s"Unparseable body"))
-        id   <- addRecipe(body.description)
-      yield GetRecipe(id, body.description)).either.map {
+        id   <- addRecipe(body.name, body.description)
+      yield GetRecipe(id.value, body.name, body.description)).either.map {
         case Right(created) =>
           Response(
             Status.Created,
@@ -51,7 +50,7 @@ object HttpRoutes:
       (for
         update <- entity[UpdateRecipe](req).absolve
           .tapError(_ => ZIO.logInfo(s"Unparseable body "))
-        _      <- updateRecipe(id.toLong, update.description)
+        _      <- updateRecipe(RecipeId(id.toLong), update.name, update.description)
       yield ()).either.map {
         case Left(_)  => Response.status(Status.BadRequest)
         case Right(_) => Response.ok

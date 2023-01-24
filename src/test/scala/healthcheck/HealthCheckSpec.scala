@@ -3,7 +3,6 @@ package healthcheck
 import zhttp.http.*
 import zio.test.*
 import zio.test.Assertion.*
-import com.example.healthcheck.*
 
 object HealthcheckSpec extends ZIOSpecDefault:
   def spec = suite("http")(
