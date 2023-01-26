@@ -8,6 +8,8 @@ import zio.{IO, ZIO, ZLayer}
 import domain.*
 
 import javax.sql.DataSource
+import java.sql.SQLException
+import org.postgresql.util.PGobject
 
 final class RecipeRepositoryLive(ds: DataSource, ctx: PostgresZioJdbcContext[PluralizedTableNames])
   extends RecipeRepository:
@@ -17,42 +19,143 @@ final class RecipeRepositoryLive(ds: DataSource, ctx: PostgresZioJdbcContext[Plu
   import ctx._
 
   inline def recipes = quote {
-    querySchema[Recipe]("recipes", _.id -> "id", _.name -> "name", _.description -> "description")
+    querySchema[RecipeDB](
+      "recipes",
+      _.id                     -> "id",
+      _.name                   -> "name",
+      _.description            -> "description",
+      _.instructions           -> "instructions",
+      _.preparationTimeMinutes -> "preparation_time",
+      _.waitingTimeMinutes     -> "waiting_time"
+    )
   }
 
-  def add(name: String, description: Option[String]): IO[RepositoryError, RecipeId] =
-    ctx
-      .run(quote(recipes.insert(_.name -> lift(name), _.description -> lift(description)).returningGenerated(_.id)))
+  inline def tags = quote(query[Tag])
+
+  inline def ingridients = quote(query[Ingridient])
+
+  inline def recipe2tags = quote {
+    querySchema[Recipe2TagDB](
+      "recipe2tags",
+      _.recipeId -> "recipe_id",
+      _.tagId    -> "tag_id"
+    )
+  }
+
+  inline def recipe2ingridients = quote {
+    querySchema[Recipe2IngridientDB](
+      "recipe2ingridients",
+      _.recipeId     -> "recipe_id",
+      _.ingridientId -> "ingridient_id",
+      _.amount       -> "amount",
+      _.unit         -> "unit"
+    )
+  }
+
+  implicit private val encodeIngridientUnit: Encoder[IngridientUnit] = encoder[IngridientUnit](
+    java.sql.Types.OTHER,
+    (index: Index, value: IngridientUnit, row: PrepareRow) => {
+      val pgObj = new PGobject()
+      pgObj.setType("ingridient_unit")
+      pgObj.setValue(value.toString)
+      row.setObject(index, pgObj, java.sql.Types.OTHER)
+    }
+  )
+
+  implicit private val decodeIngridientUnit: Decoder[IngridientUnit] =
+    decoder(row => idx => IngridientUnit.valueOf(row.getObject(idx, classOf[PGobject]).getValue))
+
+  private def insertRecipeIngridients(recipe: Recipe): ZIO[DataSource, SQLException, Unit] = {
+    for {
+      filteredIngridients   <- ctx.run(ingridients.filter(i => liftQuery(recipe.ingridients.keySet).contains(i.name)))
+      ingridientMap          = filteredIngridients.groupBy(_.name).view.mapValues(_.head.id)
+      recipe2ingridientsRows = recipe.ingridients.collect {
+        case (ingridientName, (amount, unit)) if ingridientMap.contains(ingridientName) =>
+          Recipe2IngridientDB(recipe.id, ingridientMap(ingridientName), amount, unit)
+      }
+      _ <- ctx.run(liftQuery(recipe2ingridientsRows).foreach(row => recipe2ingridients.insertValue(row)))
+    } yield ()
+  }
+
+  private def insertRecipeTags(recipe: Recipe): ZIO[DataSource, SQLException, Unit] = {
+    for {
+      filteredTags   <- ctx.run(tags.filter(t => liftQuery(recipe.tags).contains(t.name)))
+      tagMap          = filteredTags.groupBy(_.name).view.mapValues(_.head.id)
+      recipe2tagsRows = recipe.tags.flatMap(tag => tagMap.get(tag).map(tagId => Recipe2TagDB(recipe.id, tagId)))
+      _              <- ctx.run(liftQuery(recipe2tagsRows).foreach(row => recipe2tags.insertValue(row)))
+    } yield ()
+  }
+
+  def add(recipe: Recipe): IO[RepositoryError, RecipeId] = {
+    val action = for {
+      recipeId     <- ctx.run(recipes.insertValue(lift(RecipeDB.fromRecipe(recipe))).returningGenerated(_.id))
+      updatedRecipe = recipe.copy(id = recipeId)
+      _            <- insertRecipeIngridients(updatedRecipe)
+      _            <- insertRecipeTags(updatedRecipe)
+    } yield recipeId
+
+    action
       .mapError(RepositoryError(_))
       .provide(dsLayer)
+  }
 
-  def delete(id: RecipeId): IO[RepositoryError, Unit] =
-    ctx
-      .run(quote(recipes.filter(i => i.id == lift(id)).delete))
+  def getAll(): IO[RepositoryError, List[Recipe]] = {
+    val action = for {
+      recipeDBs     <- ctx.run(recipes)
+      recipeIds      = recipeDBs.map(_.id)
+      tagDBs        <- ctx.run(
+        recipe2tags.filter(row => liftQuery(recipeIds).contains(row.recipeId)).join(tags).on(_.tagId == _.id)
+      )
+      ingridientDBs <- ctx.run(
+        recipe2ingridients
+          .filter(row => liftQuery(recipeIds).contains(row.recipeId))
+          .join(ingridients)
+          .on(_.ingridientId == _.id)
+      )
+    } yield {
+      val tagMap = tagDBs.groupBy(_._1.recipeId).view.mapValues(_.map(_._2))
+      val ingridientMap = ingridientDBs.groupBy(_._1.recipeId)
+      recipeDBs.map(recipeDB =>
+        recipeDB.toRecipe(tagMap.getOrElse(recipeDB.id, Seq()), ingridientMap.getOrElse(recipeDB.id, Seq()))
+      )
+    }
+
+    action
+      .provide(dsLayer)
+      .mapError(e => new RepositoryError(e))
+  }
+
+  def getById(id: RecipeId): IO[RepositoryError, Option[Recipe]] =
+    val action = for {
+      recipeDB      <- ctx.run(recipes.filter(_.id == lift(id)).take(1))
+      ingridientDBs <- ctx.run(
+        recipe2ingridients.filter(_.recipeId == lift(id)).join(ingridients).on(_.ingridientId == _.id)
+      )
+      tagDBs        <- ctx.run(recipe2tags.filter(_.recipeId == lift(id)).join(tags).on(_.tagId == _.id).map(_._2))
+    } yield recipeDB.headOption.map(_.toRecipe(tagDBs, ingridientDBs))
+
+    action
+      .mapError(e => new RepositoryError(e))
+      .provide(dsLayer)
+
+  def update(recipe: Recipe): IO[RepositoryError, Unit] = {
+    val action = for {
+      _ <- ctx.run(recipes.filter(_.id == lift(recipe.id)).updateValue(lift(RecipeDB.fromRecipe(recipe))))
+      _ <- ctx.run(recipe2ingridients.filter(_.recipeId == lift(recipe.id)).delete)
+      _ <- ctx.run(recipe2tags.filter(_.recipeId == lift(recipe.id)).delete)
+      _ <- insertRecipeIngridients(recipe)
+      _ <- insertRecipeTags(recipe)
+    } yield ()
+
+    action
       .mapError(e => new RepositoryError(e))
       .provide(dsLayer)
       .unit
+  }
 
-  def getAll(): IO[RepositoryError, List[Recipe]] =
+  def delete(id: RecipeId): IO[RepositoryError, Unit] =
     ctx
-      .run(quote(recipes))
-      .provide(dsLayer)
-      .mapError(e => new RepositoryError(e))
-
-  def getById(id: RecipeId): IO[RepositoryError, Option[Recipe]] =
-    ctx
-      .run(quote(recipes.filter(_.id == lift(id))))
-      .map(_.headOption)
-      .mapError(e => new RepositoryError(e))
-      .provide(dsLayer)
-
-  def update(recipe: Recipe): IO[RepositoryError, Unit] =
-    ctx
-      .run(quote {
-        recipes
-          .filter(i => i.id == lift(recipe.id))
-          .update(_.name -> lift(recipe.name), _.description -> lift(recipe.description))
-      })
+      .run(quote(recipes.filter(_.id == lift(id)).delete))
       .mapError(e => new RepositoryError(e))
       .provide(dsLayer)
       .unit

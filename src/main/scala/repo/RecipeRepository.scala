@@ -5,7 +5,7 @@ import domain.*
 import repo.RepositoryError
 
 trait RecipeRepository:
-  def add(name: String, description: Option[String]): IO[RepositoryError, RecipeId]
+  def add(recipe: Recipe): IO[RepositoryError, RecipeId]
 
   def delete(id: RecipeId): IO[RepositoryError, Unit]
 
@@ -16,8 +16,8 @@ trait RecipeRepository:
   def update(recipe: Recipe): IO[RepositoryError, Unit]
 
 object RecipeRepository:
-  def add(name: String, description: Option[String]): ZIO[RecipeRepository, RepositoryError, RecipeId] =
-    ZIO.serviceWithZIO[RecipeRepository](_.add(name, description))
+  def add(recipe: Recipe): ZIO[RecipeRepository, RepositoryError, RecipeId] =
+    ZIO.serviceWithZIO[RecipeRepository](_.add(recipe))
 
   def delete(id: RecipeId): ZIO[RecipeRepository, RepositoryError, Unit] =
     ZIO.serviceWithZIO[RecipeRepository](_.delete(id))

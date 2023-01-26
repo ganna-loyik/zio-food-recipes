@@ -31,7 +31,7 @@ object HttpRoutes:
     case Method.DELETE -> !! / "recipes" / id =>
       deleteRecipe(RecipeId(id.toLong)).map(_ => Response.ok)
 
-    case req @ Method.POST -> !! / "recipes" =>
+    /*case req @ Method.POST -> !! / "recipes" =>
       (for
         body <- entity[CreateRecipe](req).absolve
           .tapError(_ => ZIO.logInfo(s"Unparseable body"))
@@ -54,7 +54,7 @@ object HttpRoutes:
       yield ()).either.map {
         case Left(_)  => Response.status(Status.BadRequest)
         case Right(_) => Response.ok
-      }
+      }*/
   }
 
   private def entity[T: JsonDecoder](req: Request): ZIO[Any, Throwable, Either[String, T]] =
