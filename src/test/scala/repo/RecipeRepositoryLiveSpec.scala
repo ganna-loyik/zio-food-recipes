@@ -16,13 +16,24 @@ object PostgresRunnableSpec extends ZIOSpecDefault:
 
   val repoLayer = RecipeRepositoryLive.layer
 
+  val exampleRecipe: String => Recipe = name =>
+    Recipe(
+      name = name,
+      description = None,
+      instructions = s"instructions for cooking $name",
+      preparationTimeMinutes = 30,
+      waitingTimeMinutes = 30,
+      tags = Set("breakfast"),
+      ingridients = Map("apple" -> (100, IngridientUnit.Gram))
+    )
+
   override def spec =
     suite("recipe repository test with postgres test container")(
       test("save recipes returns their ids") {
         for {
-          id1 <- RecipeRepository.add("first recipe", None)
-          id2 <- RecipeRepository.add("second recipe", None)
-          id3 <- RecipeRepository.add("third recipe", None)
+          id1 <- RecipeRepository.add(exampleRecipe("first recipe"))
+          id2 <- RecipeRepository.add(exampleRecipe("second recipe"))
+          id3 <- RecipeRepository.add(exampleRecipe("third recipe"))
 
         } yield assert(id1.value)(equalTo(1)) && assert(id2.value)(equalTo(2)) && assert(id3.value)(equalTo(3))
       },
@@ -40,11 +51,13 @@ object PostgresRunnableSpec extends ZIOSpecDefault:
       test("get recipe 2") {
         for {
           recipe <- RecipeRepository.getById(RecipeId(2))
-        } yield assert(recipe)(isSome) && assert(recipe.get.name)(equalTo("second recipe"))
+        } yield assert(recipe)(isSome) && assert(recipe.get)(
+          equalTo(exampleRecipe("second recipe").copy(id = RecipeId(2)))
+        )
       },
       test("update recipe 3") {
         for {
-          _      <- RecipeRepository.update(Recipe(RecipeId(3), "updated recipe", None))
+          _      <- RecipeRepository.update(exampleRecipe("updated recipe").copy(id = RecipeId(3)))
           recipe <- RecipeRepository.getById(RecipeId(3))
         } yield assert(recipe)(isSome) && assert(recipe.get.name)(equalTo("updated recipe"))
       }

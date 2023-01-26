@@ -7,7 +7,7 @@ import domain.DomainError.*
 import repo.RecipeRepository
 
 object RecipeRepoMock extends Mock[RecipeRepository]:
-  object Add     extends Effect[(String, Option[String]), Nothing, RecipeId]
+  object Add     extends Effect[Recipe, Nothing, RecipeId]
   object Delete  extends Effect[RecipeId, Nothing, Unit]
   object GetAll  extends Effect[Unit, Nothing, List[Recipe]]
   object GetById extends Effect[RecipeId, Nothing, Option[Recipe]]
@@ -16,7 +16,7 @@ object RecipeRepoMock extends Mock[RecipeRepository]:
   val compose: URLayer[Proxy, RecipeRepository] =
     ZLayer.fromFunction { (proxy: Proxy) =>
       new RecipeRepository {
-        override def add(name: String, description: Option[String]) = proxy(Add, name, description)
+        override def add(recipe: Recipe) = proxy(Add, recipe)
 
         override def delete(id: RecipeId) = proxy(Delete, id)
 

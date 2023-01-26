@@ -7,8 +7,8 @@ import domain.DomainError.BusinessError
 import repo.*
 
 final class RecipeServiceLive(repo: RecipeRepository) extends RecipeService:
-  def addRecipe(name: String, description: Option[String]): UIO[RecipeId] =
-    repo.add(name, description).orDie
+  def addRecipe(recipe: Recipe): UIO[RecipeId] =
+    repo.add(recipe).orDie
 
   def deleteRecipe(id: RecipeId): UIO[Unit] =
     repo.delete(id).orDie
@@ -19,13 +19,13 @@ final class RecipeServiceLive(repo: RecipeRepository) extends RecipeService:
   def getRecipeById(id: RecipeId): UIO[Option[Recipe]] =
     repo.getById(id).orDie
 
-  def updateRecipe(id: RecipeId, name: String, description: Option[String]): IO[DomainError, Unit] =
+  def updateRecipe(recipe: Recipe): IO[DomainError, Unit] =
     for
-      foundOption <- getRecipeById(id)
+      foundOption <- getRecipeById(recipe.id)
       _           <- ZIO
         .fromOption(foundOption)
-        .mapError(_ => BusinessError(s"Recipe with ID ${id.value} not found"))
-        .flatMap(recipe => repo.update(Recipe(id, name, description)).orDie)
+        .mapError(_ => BusinessError(s"Recipe with ID ${recipe.id.value} not found"))
+        .flatMap(_ => repo.update(recipe).orDie)
     yield ()
 
 object RecipeServiceLive:

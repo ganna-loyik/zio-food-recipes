@@ -4,7 +4,7 @@ import zio.*
 import domain.*
 
 trait RecipeService:
-  def addRecipe(name: String, description: Option[String]): UIO[RecipeId]
+  def addRecipe(recipe: Recipe): UIO[RecipeId]
 
   def deleteRecipe(id: RecipeId): UIO[Unit]
 
@@ -12,11 +12,11 @@ trait RecipeService:
 
   def getRecipeById(id: RecipeId): UIO[Option[Recipe]]
 
-  def updateRecipe(id: RecipeId, name: String, description: Option[String]): IO[DomainError, Unit]
+  def updateRecipe(recipe: Recipe): IO[DomainError, Unit]
 
 object RecipeService:
-  def addRecipe(name: String, description: Option[String]): URIO[RecipeService, RecipeId] =
-    ZIO.serviceWithZIO[RecipeService](_.addRecipe(name, description))
+  def addRecipe(recipe: Recipe): URIO[RecipeService, RecipeId] =
+    ZIO.serviceWithZIO[RecipeService](_.addRecipe(recipe))
 
   def deleteRecipe(id: RecipeId): URIO[RecipeService, Unit] =
     ZIO.serviceWithZIO[RecipeService](_.deleteRecipe(id))
@@ -27,9 +27,5 @@ object RecipeService:
   def getRecipeById(id: RecipeId): URIO[RecipeService, Option[Recipe]] =
     ZIO.serviceWithZIO[RecipeService](_.getRecipeById(id))
 
-  def updateRecipe(
-    id: RecipeId,
-    name: String,
-    description: Option[String]
-  ): ZIO[RecipeService, DomainError, Unit] =
-    ZIO.serviceWithZIO[RecipeService](_.updateRecipe(id, name, description))
+  def updateRecipe(recipe: Recipe): ZIO[RecipeService, DomainError, Unit] =
+    ZIO.serviceWithZIO[RecipeService](_.updateRecipe(recipe))
