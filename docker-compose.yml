@@ -1,11 +1,15 @@
 version: '3.7'
 
 services:
-  postgres:
+  pg:
     image: postgres:latest
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
+      timeout: 1s
+      retries: 50
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
       - ./src/main/resources/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - POSTGRES_USER=postgres
@@ -13,3 +17,17 @@ services:
       - POSTGRES_DB=recipes
     ports:
       - "5432:5432"
+  
+  api:
+    image: sbtscala/scala-sbt:eclipse-temurin-focal-17.0.5_8_1.8.2_3.2.1
+    volumes:
+      - ./src:/root/src:rw
+      - ./project/build.properties:/root/project/build.properties:rw
+      - ./project/plugins.sbt:/root/project/plugins.sbt:rw
+      - ./build.sbt:/root/build.sbt:rw
+      - ./test:/root/test:rw
+    ports:
+      - "9000:9000"
+    depends_on:
+      - pg
+    command: [ "bash", "-c", "sbt update clean compile && sbt run" ]
