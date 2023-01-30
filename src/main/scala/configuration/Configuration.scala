@@ -26,3 +26,24 @@ object Configuration:
         )
       )
     )
+
+  final case class DbConfig(url: String, user: String, password: String)
+
+  object DbConfig:
+
+    private val dbConfigDescription =
+      (
+        nested("postgres-db")(nested("dataSource")(string("url"))) <*>
+          nested("postgres-db")(nested("dataSource")(string("user"))) <*>
+          nested("postgres-db")(nested("dataSource")(string("password")))
+      ).to[DbConfig]
+
+    val layer = ZLayer(
+      read(
+        dbConfigDescription.from(
+          TypesafeConfigSource.fromTypesafeConfig(
+            ZIO.attempt(ConfigFactory.defaultApplication().resolve())
+          )
+        )
+      )
+    )
