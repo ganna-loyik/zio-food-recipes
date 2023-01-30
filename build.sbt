@@ -9,16 +9,12 @@ val postgresqlVersion = "42.5.1"
 val zioConfigVersion = "3.0.6"
 val zioMockVersion = "1.0.0-RC8"
 
+scalaVersion := "3.2.0"
+name         := "zio-food-recipes"
+version      := "0.0.1"
+
 lazy val root = (project in file("."))
   .settings(
-    inThisBuild(
-      List(
-        name := "zio-food-recipes",
-        version := "0.0.1",
-        scalaVersion := "3.2.0",
-      )
-    ),
-    name := "zio-quickstart",
     libraryDependencies ++= Seq(
       "io.getquill" %% "quill-jdbc" % quillVersion excludeAll (
         ExclusionRule(organization = "org.scala-lang.modules")
@@ -50,3 +46,11 @@ lazy val root = (project in file("."))
     ),
     testFrameworks := Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
   )
+  
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+
+dockerExposedPorts := Seq(9000)
+dockerBaseImage := "eclipse-temurin:11"
+dockerUsername := sys.props.get("docker.username")
+dockerRepository := sys.props.get("docker.registry")
