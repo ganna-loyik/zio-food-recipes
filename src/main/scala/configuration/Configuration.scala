@@ -21,7 +21,7 @@ object Configuration:
       read(
         serverConfigDescription.from(
           TypesafeConfigSource.fromTypesafeConfig(
-            ZIO.attempt(ConfigFactory.defaultApplication())
+            ZIO.attempt(ConfigFactory.defaultApplication().resolve())
           )
         )
       )
