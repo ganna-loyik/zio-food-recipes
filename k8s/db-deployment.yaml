@@ -18,13 +18,22 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: db-secret
+  name: db-config
   labels:
     app: db
 data:
-  POSTGRES_DB: recipes
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: postgres
+  dbname: recipes
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  username: cG9zdGdyZXM=
+  password: cG9zdGdyZXM=
 
 ---
 
@@ -83,9 +92,24 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
-          envFrom:
-            - configMapRef:
-                name: db-secret
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: dbname
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: username
+                  optional: false
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+                  optional: false
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: dbdata
