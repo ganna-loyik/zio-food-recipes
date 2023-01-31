@@ -8,11 +8,13 @@ import zio.config.*
 import zio.stream.*
 import api.*
 import configuration.Configuration.*
+import graphql.schemas.GraphQLSchema
 import healthcheck.*
 import javax.sql.DataSource
-import org.flywaydb.core.Flyway
+import migration.DatabaseMigrator
 import repo.*
 import service.*
+import caliban.ZHttpAdapter
 
 object Main extends ZIOAppDefault:
 
@@ -22,15 +24,6 @@ object Main extends ZIOAppDefault:
 
   private val serviceLayer = RecipeServiceLive.layer
 
-  private def migrate(config: DbConfig) = {
-    Flyway
-      .configure()
-      .validateMigrationNaming(true)
-      .dataSource(config.url, config.user, config.password)
-      .load()
-      .migrate()
-  }
-
   val routes =
     api.HttpRoutes.app ++
       Healthcheck.routes
@@ -38,9 +31,15 @@ object Main extends ZIOAppDefault:
   val program =
     for
       dbConfig <- getConfig[DbConfig]
-      _        <- ZIO.attempt(migrate(dbConfig))
-      config   <- getConfig[ServerConfig]
-      _        <- Server.start(config.port, routes)
+      _        <- ZIO.attempt(DatabaseMigrator.migrate(dbConfig))
+
+      interpreter <- GraphQLSchema.api.interpreter
+      config      <- getConfig[ServerConfig]
+
+      updatedRoutes = routes ++ Http.collectHttp[Request] { case Method.POST -> !! / "graphql" =>
+        ZHttpAdapter.makeHttpService(interpreter)
+      }
+      _            <- Server.start(config.port, updatedRoutes)
     yield ()
 
   override val run =
