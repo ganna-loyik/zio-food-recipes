@@ -11,7 +11,7 @@ val flywayVersion = "9.11.0"
 val zioConfigVersion = "3.0.6"
 val zioMockVersion = "1.0.0-RC8"
 
-scalaVersion := "3.2.0"
+scalaVersion := "3.2.2-RC1"
 name         := "zio-food-recipes"
 version      := "0.0.1"
 
