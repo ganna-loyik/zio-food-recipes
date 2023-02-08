@@ -1,0 +1,40 @@
+{
+  "family": "zio-app",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "091528600824.dkr.ecr.us-east-1.amazonaws.com/zio-food-recipes",
+      "environment": [
+        {
+          "name": "JDBC_DATABASE_URL",
+          "value": "jdbc:postgresql://postgres-db.cfxkbemp4ds1.us-east-1.rds.amazonaws.com:5432/recipes"
+        },
+        {
+          "name": "JDBC_DATABASE_USER",
+          "value": "postgres"
+        },
+        {
+          "name": "JDBC_DATABASE_PASSWORD",
+          "value": "postgres"
+        }
+      ],
+      "portMappings": [
+        {
+          "containerPort": 9000,
+          "hostPort": 9000,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true
+    }
+  ],
+  "taskRoleArn": "ecsTaskExecutionRole",
+  "executionRoleArn": "ecsTaskExecutionRole",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "1024"
+}
