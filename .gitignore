@@ -8,3 +8,6 @@ target
 metals.sbt
 .scalafmt.conf
 postgres-data
+kubeconfig.yaml
+KUBECONFIG
+aws-auth-configmap.yaml
