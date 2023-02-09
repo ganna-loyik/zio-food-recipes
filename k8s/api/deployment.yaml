@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: gannaloyik/zio-food-recipes:0.0.1
+          image: zio-food-recipes
           imagePullPolicy: IfNotPresent
           env:
             - name: JDBC_DATABASE_URL
