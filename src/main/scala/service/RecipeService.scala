@@ -1,7 +1,7 @@
 package service
 
 import zio.*
-import domain.*
+import domain.{DomainError, Recipe, RecipeId}
 
 trait RecipeService:
   def addRecipe(recipe: Recipe): UIO[RecipeId]
