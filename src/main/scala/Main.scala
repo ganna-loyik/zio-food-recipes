@@ -20,10 +20,6 @@ object Main extends ZIOAppDefault:
 
   private val dataSourceLayer = Quill.DataSource.fromPrefix("postgres-db")
 
-  private val repoLayer = RecipeRepositoryLive.layer
-
-  private val serviceLayer = RecipeServiceLive.layer
-
   val routes =
     api.HttpRoutes.app ++
       Healthcheck.routes
@@ -41,6 +37,16 @@ object Main extends ZIOAppDefault:
       }
       _            <- Server.start(config.port, updatedRoutes)
     yield ()
-
+      
   override val run =
-    program.provide(ServerConfig.layer, DbConfig.layer, serviceLayer, repoLayer, dataSourceLayer)
+    program.provide(
+      ServerConfig.layer,
+      DbConfig.layer,
+      RecipeRepositoryLive.layer,
+      RecipeServiceLive.layer,
+      RecipeTagRepositoryLive.layer,
+      RecipeTagServiceLive.layer,
+      IngridientRepositoryLive.layer,
+      IngridientServiceLive.layer,
+      dataSourceLayer
+    )

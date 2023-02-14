@@ -3,13 +3,22 @@ package domain
 import caliban.schema.Schema
 import caliban.schema.Schema.{field, obj}
 
-case class TagId(value: Long) extends AnyVal
+case class RecipeTagId(value: Long) extends AnyVal
 
-case class Tag(id: TagId, name: String)
+case class RecipeTag(id: RecipeTagId = RecipeTagId(0), name: String)
+
+object RecipeTag {
+  given recipeTagSchema: Schema[Any, RecipeTag] = obj("RecipeTag")(implicit ft => List(field("name")(_.name)))
+}
 
 case class IngridientId(value: Long) extends AnyVal
 
-case class Ingridient(id: IngridientId, name: String)
+case class Ingridient(id: IngridientId = IngridientId(0), name: String)
+
+object Ingridient {
+  given ingridientSchema: Schema[Any, Ingridient] =
+    obj("Ingridient")(implicit ft => List(field("id")(_.id.value), field("name")(_.name)))
+}
 
 enum IngridientUnit(val abbreviated: String):
   case Gram       extends IngridientUnit("g")

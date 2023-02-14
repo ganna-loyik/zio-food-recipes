@@ -1,9 +1,10 @@
 package repo
 
+import DbContext.*
 import domain.*
 import org.postgresql.util.PGobject
 
-case class Recipe2TagDB(recipeId: RecipeId, tagId: TagId)
+case class Recipe2TagDB(recipeId: RecipeId, tagId: RecipeTagId)
 
 case class Recipe2IngridientDB(recipeId: RecipeId, ingridientId: IngridientId, amount: Int, unit: IngridientUnit)
 
@@ -16,7 +17,7 @@ case class RecipeDB(
   waitingTimeMinutes: Int
 ):
   def toRecipe(
-    tagDBs: Seq[Tag],
+    tagDBs: Seq[RecipeTag],
     recipe2ingridientDBs: Seq[(Recipe2IngridientDB, Ingridient)]
   ): Recipe = {
     Recipe(
