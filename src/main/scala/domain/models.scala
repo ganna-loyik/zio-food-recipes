@@ -48,7 +48,11 @@ object Recipe {
       field("waitingTimeMinutes")(_.waitingTimeMinutes),
       field("time")(r =>
         s"It takes ${r.preparationTimeMinutes} min for prepare and then ${r.waitingTimeMinutes} min to wait"
-      )
+      ),
+      field("tags")(_.tags),
+      field("ingridients")(r =>
+        r.ingridients.map { case (ingr, (amount, unit)) => s"$ingr -- $amount ${unit.abbreviated}"}.mkString(",\n")
+      ),
     )
   )
 }
