@@ -15,9 +15,9 @@ inline def recipes = quote {
   )
 }
 
-inline def tags = quote(query[RecipeTag])
+inline def tags = quote(querySchema[RecipeTag]("tags"))
 
-inline def ingridients = quote(query[Ingridient])
+inline def ingridients = quote(querySchema[Ingridient]("ingridients"))
 
 inline def recipe2tags = quote {
   querySchema[Recipe2TagDB](

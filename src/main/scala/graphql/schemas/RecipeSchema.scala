@@ -7,14 +7,13 @@ import domain.*
 import graphql.types.*
 import Recipe.recipeSchema
 import service.RecipeService
-import caliban.schema.Schema
 
 object RecipeSchema:
   case class Queries(recipe: IdArg => URIO[RecipeService, Option[Recipe]], recipes: URIO[RecipeService, List[Recipe]])
 
   case class Mutations(
     addRecipe: CreateRecipeInput => URIO[RecipeService, Long],
-    // updateRecipe: UpdateRecipeInput => ZIO[RecipeService, String, Unit],
+    updateRecipe: UpdateRecipeInput => RIO[RecipeService, Unit],
     deleteRecipe: IdArg => URIO[RecipeService, Unit]
   )
 
@@ -25,7 +24,7 @@ object RecipeSchema:
 
   val mutations = Mutations(
     form => RecipeService.addRecipe(form.toRecipe).map(_.value),
-    // form => RecipeService.updateRecipe(form.toRecipe).mapError(_.msg),
+    form => RecipeService.updateRecipe(form.toRecipe).mapError(e => Throwable(e.msg)),
     arg => RecipeService.deleteRecipe(RecipeId(arg.id))
   )
 
