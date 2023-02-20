@@ -14,6 +14,7 @@ import javax.sql.DataSource
 import migration.DatabaseMigrator
 import repo.*
 import service.*
+import subscription.*
 import caliban.ZHttpAdapter
 
 object Main extends ZIOAppDefault:
@@ -32,18 +33,20 @@ object Main extends ZIOAppDefault:
       interpreter <- GraphQLSchema.api.interpreter
       config      <- getConfig[ServerConfig]
 
-      updatedRoutes = routes ++ Http.collectHttp[Request] { case Method.POST -> !! / "graphql" =>
-        ZHttpAdapter.makeHttpService(interpreter)
+      updatedRoutes = routes ++ Http.collectHttp[Request] {
+        case Method.POST -> !! / "graphql"       => ZHttpAdapter.makeHttpService(interpreter)
+        case Method.GET -> !! / "ws" / "graphql" => ZHttpAdapter.makeWebSocketService(interpreter)
       }
       _            <- Server.start(config.port, updatedRoutes)
     yield ()
-      
+
   override val run =
     program.provide(
       ServerConfig.layer,
       DbConfig.layer,
       RecipeRepositoryLive.layer,
       RecipeServiceLive.layer,
+      RecipeHubLive.layer,
       RecipeTagRepositoryLive.layer,
       RecipeTagServiceLive.layer,
       IngridientRepositoryLive.layer,
