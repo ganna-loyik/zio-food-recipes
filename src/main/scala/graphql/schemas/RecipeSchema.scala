@@ -3,19 +3,23 @@ package graphql.schemas
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import zio.*
+import zio.stream.{UStream, ZStream}
 import domain.*
 import graphql.types.*
 import Recipe.recipeSchema
 import service.RecipeService
+import subscription.RecipeHub
 
 object RecipeSchema:
   case class Queries(recipe: IdArg => URIO[RecipeService, Option[Recipe]], recipes: URIO[RecipeService, List[Recipe]])
 
   case class Mutations(
-    addRecipe: CreateRecipeInput => URIO[RecipeService, Long],
+    addRecipe: CreateRecipeInput => URIO[RecipeService & RecipeHub, Long],
     updateRecipe: UpdateRecipeInput => RIO[RecipeService, Unit],
     deleteRecipe: IdArg => URIO[RecipeService, Unit]
   )
+
+  case class Subscriptions(newRecipe: ZStream[RecipeHub, Nothing, Recipe])
 
   val queries = Queries(
     arg => RecipeService.getRecipeById(RecipeId(arg.id)),
@@ -23,9 +27,18 @@ object RecipeSchema:
   )
 
   val mutations = Mutations(
-    form => RecipeService.addRecipe(form.toRecipe).map(_.value),
+    form =>
+      for {
+        recipeId <- RecipeService.addRecipe(form.toRecipe).map(_.value)
+        recipe   <- RecipeService.getRecipeById(RecipeId(recipeId))
+        _        <- RecipeHub.publishRecipe(recipe.get)
+      } yield recipeId,
     form => RecipeService.updateRecipe(form.toRecipe).mapError(e => Throwable(e.msg)),
     arg => RecipeService.deleteRecipe(RecipeId(arg.id))
   )
 
-  val api = graphQL[RecipeService, Queries, Mutations, Unit](RootResolver(queries, mutations))
+  val subscriptions = Subscriptions(RecipeHub.subscribe())
+
+  val api = graphQL[RecipeService & RecipeHub, Queries, Mutations, Subscriptions](
+    RootResolver(queries, mutations, subscriptions)
+  )
