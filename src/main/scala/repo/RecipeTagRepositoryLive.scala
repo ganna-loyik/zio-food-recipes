@@ -7,7 +7,7 @@ import domain.*
 import javax.sql.DataSource
 
 final class RecipeTagRepositoryLive(ds: DataSource) extends RecipeTagRepository:
-  import DbContext._
+  import DbContext.*
 
   private val dsLayer = ZLayer(ZIO.succeed(ds))
 

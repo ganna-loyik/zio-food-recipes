@@ -26,10 +26,3 @@ object HttpRoutes:
             case None         => Response.status(Status.NotFound)
           }
       }
-
-  private def entity[T: JsonDecoder](req: Request): ZIO[Any, Throwable, Either[String, T]] =
-    req.data.toByteBuf.map { byteBuf =>
-      val bytes = Array[Byte]()
-      byteBuf.readBytes(bytes)
-      new String(bytes, StandardCharsets.UTF_8).fromJson[T]
-    }

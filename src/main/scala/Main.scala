@@ -7,6 +7,7 @@ import zio.*
 import zio.config.*
 import zio.stream.*
 import api.*
+import auth.*
 import configuration.Configuration.*
 import graphql.schemas.GraphQLSchema
 import healthcheck.*
@@ -21,9 +22,10 @@ object Main extends ZIOAppDefault:
 
   private val dataSourceLayer = Quill.DataSource.fromPrefix("postgres-db")
 
-  val routes =
+  val routes: HttpApp[RecipeService & LoginService, Throwable] =
     api.HttpRoutes.app ++
-      Healthcheck.routes
+      Healthcheck.routes ++
+      AuthRoutes.app
 
   val program =
     for
@@ -34,7 +36,7 @@ object Main extends ZIOAppDefault:
       config      <- getConfig[ServerConfig]
 
       updatedRoutes = routes ++ Http.collectHttp[Request] {
-        case Method.POST -> !! / "graphql"       => ZHttpAdapter.makeHttpService(interpreter)
+        case Method.POST -> !! / "graphql" => ZHttpAdapter.makeHttpService(interpreter) @@ AuthMiddleware.middleware
         case Method.GET -> !! / "ws" / "graphql" => ZHttpAdapter.makeWebSocketService(interpreter)
       }
       _            <- Server.start(config.port, updatedRoutes)
@@ -42,6 +44,9 @@ object Main extends ZIOAppDefault:
 
   override val run =
     program.provide(
+      JwtDecoderLive.layer,
+      JwtEncoderLive.layer,
+      LoginServiceLive.layer,
       ServerConfig.layer,
       DbConfig.layer,
       RecipeRepositoryLive.layer,
