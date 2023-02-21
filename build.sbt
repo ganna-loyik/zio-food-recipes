@@ -10,6 +10,7 @@ val calibanVersion = "2.0.2"
 val flywayVersion = "9.11.0"
 val zioConfigVersion = "3.0.6"
 val zioMockVersion = "1.0.0-RC8"
+val jwtCoreVersion = "9.2.0"
 
 scalaVersion := "3.2.2"
 name         := "zio-food-recipes"
@@ -36,6 +37,7 @@ lazy val root = (project in file("."))
       "io.d11"                %% "zhttp"                           % zioHttpVersion,
       "dev.zio"               %% "zio-config"                      % zioConfigVersion,
       "dev.zio"               %% "zio-config-typesafe"             % zioConfigVersion,
+      "com.github.jwt-scala"  %% "jwt-core"                        % jwtCoreVersion,
       "ch.qos.logback"         % "logback-classic"                 % logbackVersion,
       "dev.zio"               %% "zio-json"                        % zioJsonVersion,
       "dev.zio"               %% "zio-test"                        % zioVersion                 % Test,

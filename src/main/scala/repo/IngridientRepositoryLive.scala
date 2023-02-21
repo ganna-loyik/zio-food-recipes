@@ -7,7 +7,7 @@ import domain.*
 import javax.sql.DataSource
 
 final class IngridientRepositoryLive(ds: DataSource) extends IngridientRepository:
-  import DbContext._
+  import DbContext.*
 
   private val dsLayer = ZLayer(ZIO.succeed(ds))
 

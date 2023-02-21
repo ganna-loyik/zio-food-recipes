@@ -10,7 +10,7 @@ import java.sql.SQLException
 import org.postgresql.util.PGobject
 
 final class RecipeRepositoryLive(ds: DataSource) extends RecipeRepository:
-  import DbContext._
+  import DbContext.*
 
   implicit private val encodeIngridientUnit: Encoder[IngridientUnit] = encoder[IngridientUnit](
     java.sql.Types.OTHER,
