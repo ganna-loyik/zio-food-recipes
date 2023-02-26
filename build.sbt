@@ -1,6 +1,7 @@
 val zioVersion = "2.0.5"
 val zioHttpVersion = "2.0.0-RC10"
 val zioJsonVersion = "0.4.2"
+//val zioActorVersion = "0.1.0"
 val logbackVersion = "1.4.5"
 val testcontainersVersion = "1.17.6"
 val testcontainersScalaVersion = "0.40.12"
@@ -11,6 +12,7 @@ val flywayVersion = "9.11.0"
 val zioConfigVersion = "3.0.6"
 val zioMockVersion = "1.0.0-RC8"
 val jwtCoreVersion = "9.2.0"
+val akkaVersion = "2.7.0"
 
 scalaVersion := "3.2.2"
 name         := "zio-food-recipes"
@@ -40,6 +42,7 @@ lazy val root = (project in file("."))
       "com.github.jwt-scala"  %% "jwt-core"                        % jwtCoreVersion,
       "ch.qos.logback"         % "logback-classic"                 % logbackVersion,
       "dev.zio"               %% "zio-json"                        % zioJsonVersion,
+      "com.typesafe.akka"     %% "akka-persistence-typed"          % akkaVersion,
       "dev.zio"               %% "zio-test"                        % zioVersion                 % Test,
       "dev.zio"               %% "zio-test-sbt"                    % zioVersion                 % Test,
       "dev.zio"               %% "zio-test-junit"                  % zioVersion                 % Test,
