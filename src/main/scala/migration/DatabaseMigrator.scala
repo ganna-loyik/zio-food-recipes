@@ -7,6 +7,7 @@ object DatabaseMigrator:
   def migrate(config: DbConfig) = {
     Flyway
       .configure()
+      .mixed(true)
       .validateMigrationNaming(true)
       .dataSource(config.url, config.user, config.password)
       .load()
