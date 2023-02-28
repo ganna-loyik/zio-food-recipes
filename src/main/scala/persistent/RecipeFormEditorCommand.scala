@@ -5,7 +5,7 @@ import akka.actor.typed.ActorRef
 import akka.Done
 import akka.pattern.StatusReply
 
-sealed trait RecipeFormEditorCommand
+sealed trait RecipeFormEditorCommand extends CborSerializable
 final case class UpdateName(name: String, replyTo: ActorRef[Done])                 extends RecipeFormEditorCommand
 final case class UpdateDescription(description: String, replyTo: ActorRef[Done])   extends RecipeFormEditorCommand
 final case class UpdateInstructions(instructions: String, replyTo: ActorRef[Done]) extends RecipeFormEditorCommand
@@ -34,4 +34,4 @@ final case class Save(replyTo: ActorRef[StatusReply[Done]]) extends RecipeFormEd
 
 final case class Get(replyTo: ActorRef[Summary]) extends RecipeFormEditorCommand
 
-final case class Summary(form: RecipeForm, isSaved: Boolean)
+final case class Summary(form: RecipeForm, isSaved: Boolean) extends CborSerializable

@@ -12,20 +12,10 @@ object RecipeFormEditor {
   def apply(recipeFormId: String): Behavior[RecipeFormEditorCommand] = {
     Behaviors.setup { context =>
       context.log.info("Creating recipe form {}", recipeFormId)
-
-      val commandHandler
-        : (RecipeFormEditorState, RecipeFormEditorCommand) => Effect[RecipeFormEditorEvent, RecipeFormEditorState] = {
-        (state, command) =>
-          state match {
-            case openState: RecipeFormOpenState   => commandHandlerForOpenRecipeForm(recipeFormId, openState, command)
-            case savedState: RecipeFormSavedState => commandHandlerForSavedRecipeForm(recipeFormId, savedState, command)
-          }
-      }
-
       EventSourcedBehavior[RecipeFormEditorCommand, RecipeFormEditorEvent, RecipeFormEditorState](
         PersistenceId.ofUniqueId(recipeFormId),
         emptyState = RecipeFormOpenState.empty,
-        commandHandler,
+        (state, command) => commandHandler(recipeFormId, state, command),
         eventHandler
       )
     }
@@ -119,6 +109,15 @@ object RecipeFormEditor {
         replyTo ! state.toSummary
         Effect.none
     }
+
+  private def commandHandler(
+    recipeFormId: String,
+    state: RecipeFormEditorState,
+    command: RecipeFormEditorCommand
+  ): Effect[RecipeFormEditorEvent, RecipeFormEditorState] =
+    state match
+      case openState: RecipeFormOpenState   => commandHandlerForOpenRecipeForm(recipeFormId, openState, command)
+      case savedState: RecipeFormSavedState => commandHandlerForSavedRecipeForm(recipeFormId, savedState, command)
 
   private def eventHandler(state: RecipeFormEditorState, event: RecipeFormEditorEvent): RecipeFormEditorState = {
     state match

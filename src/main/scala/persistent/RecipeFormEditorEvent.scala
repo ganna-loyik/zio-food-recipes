@@ -2,7 +2,7 @@ package persistent
 
 import domain.*
 
-sealed trait RecipeFormEditorEvent {
+sealed trait RecipeFormEditorEvent extends CborSerializable {
   def recipeFormId: String
 }
 
