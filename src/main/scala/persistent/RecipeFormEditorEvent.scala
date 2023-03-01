@@ -6,6 +6,8 @@ sealed trait RecipeFormEditorEvent extends CborSerializable {
   def recipeFormId: String
 }
 
+final case class Created(recipeFormId: String) extends RecipeFormEditorEvent
+
 final case class NameUpdated(recipeFormId: String, name: String)                 extends RecipeFormEditorEvent
 final case class DescriptionUpdated(recipeFormId: String, description: String)   extends RecipeFormEditorEvent
 final case class InstructionsUpdated(recipeFormId: String, instructions: String) extends RecipeFormEditorEvent

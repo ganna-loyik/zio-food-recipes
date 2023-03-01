@@ -4,7 +4,7 @@ import domain.IngridientUnit
 
 trait RecipeFormEditorState
 
-final case class RecipeFormOpenState(form: RecipeForm) extends RecipeFormEditorState {
+final case class RecipeFormOpenState(id: String, form: RecipeForm) extends RecipeFormEditorState {
   def isCompleted: Boolean =
     form.name.getOrElse("").nonEmpty &&
     form.instructions.nonEmpty &&
@@ -49,9 +49,9 @@ final case class RecipeFormOpenState(form: RecipeForm) extends RecipeFormEditorS
 }
 
 object RecipeFormOpenState {
-  val empty = RecipeFormOpenState(RecipeForm(None, None, None, None, None, Set(), Map()))
+  def empty(id: String) = RecipeFormOpenState(id, RecipeForm(None, None, None, None, None, Set(), Map()))
 }
 
-final case class RecipeFormSavedState(form: RecipeForm) extends RecipeFormEditorState {
+final case class RecipeFormSavedState(id: String, form: RecipeForm) extends RecipeFormEditorState {
   def toSummary: Summary = Summary(form, true)
 }
