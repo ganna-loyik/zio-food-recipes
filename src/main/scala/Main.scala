@@ -42,7 +42,7 @@ object Main extends ZIOAppDefault:
 
   val program: ZIO[
     DbConfig & ServerConfig & LoginService & RecipeService & RecipeHub & RecipeTagService & JwtDecoder &
-      IngridientService,
+      IngredientService,
     Throwable,
     Unit
   ] =
@@ -81,7 +81,7 @@ object Main extends ZIOAppDefault:
       RecipeHubLive.layer,
       RecipeTagRepositoryLive.layer,
       RecipeTagServiceLive.layer,
-      IngridientRepositoryLive.layer,
-      IngridientServiceLive.layer,
+      IngredientRepositoryLive.layer,
+      IngredientServiceLive.layer,
       dataSourceLayer
     )

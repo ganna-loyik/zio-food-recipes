@@ -1,6 +1,6 @@
 package persistent
 
-import domain.IngridientUnit
+import domain.IngredientUnit
 
 trait RecipeFormEditorState
 
@@ -10,7 +10,7 @@ final case class RecipeFormOpenState(id: String, form: RecipeForm) extends Recip
     form.instructions.nonEmpty &&
     form.preparationTimeMinutes.nonEmpty &&
     form.waitingTimeMinutes.nonEmpty &&
-    form.ingridients.nonEmpty
+    form.ingredients.nonEmpty
 
   def updateName(name: String): RecipeFormEditorState = copy(form = form.copy(name = Some(name)))
 
@@ -26,17 +26,17 @@ final case class RecipeFormOpenState(id: String, form: RecipeForm) extends Recip
   def updateWaitingTime(minutes: Int): RecipeFormEditorState =
     copy(form = form.copy(waitingTimeMinutes = Some(minutes)))
 
-  def hasIngridient(ingridient: String): Boolean =
-    form.ingridients.contains(ingridient)
+  def hasIngredient(ingredient: String): Boolean =
+    form.ingredients.contains(ingredient)
 
-  def updateIngridient(ingridient: String, amount: Int, unit: IngridientUnit): RecipeFormEditorState =
+  def updateIngredient(ingredient: String, amount: Int, unit: IngredientUnit): RecipeFormEditorState =
     amount match {
-      case 0 => copy(form = form.copy(ingridients = form.ingridients - ingridient))
-      case _ => copy(form = form.copy(ingridients = form.ingridients + (ingridient -> (amount, unit))))
+      case 0 => copy(form = form.copy(ingredients = form.ingredients - ingredient))
+      case _ => copy(form = form.copy(ingredients = form.ingredients + (ingredient -> (amount, unit))))
     }
 
-  def removeIngridient(ingridient: String): RecipeFormEditorState =
-    copy(form = form.copy(ingridients = form.ingridients - ingridient))
+  def removeIngredient(ingredient: String): RecipeFormEditorState =
+    copy(form = form.copy(ingredients = form.ingredients - ingredient))
 
   def hasTag(tag: String): Boolean =
     form.tags.contains(tag)

@@ -5,7 +5,7 @@ import akka.actor.typed.scaladsl.AskPattern._
 import akka.util.Timeout
 import scala.concurrent.duration._
 import zio.*
-import domain.IngridientUnit
+import domain.IngredientUnit
 
 trait RecipeFormEditorService:
   def addRecipeForm(): Task[String]
@@ -22,11 +22,11 @@ trait RecipeFormEditorService:
 
   def updateWaitingTime(id: String, minutes: Int): Task[Unit]
 
-  def addIngridient(id: String, ingridient: String, amount: Int, unit: IngridientUnit): Task[Unit]
+  def addIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit]
 
-  def updateIngridient(id: String, ingridient: String, amount: Int, unit: IngridientUnit): Task[Unit]
+  def updateIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit]
 
-  def removeIngridient(id: String, ingridient: String): Task[Unit]
+  def removeIngredient(id: String, ingredient: String): Task[Unit]
 
   def addTag(id: String, tag: String): Task[Unit]
 
@@ -56,24 +56,24 @@ object RecipeFormEditorService:
   def updateWaitingTime(id: String, minutes: Int): RIO[RecipeFormEditorService, Unit] =
     ZIO.serviceWithZIO[RecipeFormEditorService](_.updateWaitingTime(id, minutes))
 
-  def addIngridient(
+  def addIngredient(
     id: String,
-    ingridient: String,
+    ingredient: String,
     amount: Int,
-    unit: IngridientUnit
+    unit: IngredientUnit
   ): RIO[RecipeFormEditorService, Unit] =
-    ZIO.serviceWithZIO[RecipeFormEditorService](_.addIngridient(id, ingridient, amount, unit))
+    ZIO.serviceWithZIO[RecipeFormEditorService](_.addIngredient(id, ingredient, amount, unit))
 
-  def updateIngridient(
+  def updateIngredient(
     id: String,
-    ingridient: String,
+    ingredient: String,
     amount: Int,
-    unit: IngridientUnit
+    unit: IngredientUnit
   ): RIO[RecipeFormEditorService, Unit] =
-    ZIO.serviceWithZIO[RecipeFormEditorService](_.updateIngridient(id, ingridient, amount, unit))
+    ZIO.serviceWithZIO[RecipeFormEditorService](_.updateIngredient(id, ingredient, amount, unit))
 
-  def removeIngridient(id: String, ingridient: String): RIO[RecipeFormEditorService, Unit] =
-    ZIO.serviceWithZIO[RecipeFormEditorService](_.removeIngridient(id, ingridient))
+  def removeIngredient(id: String, ingredient: String): RIO[RecipeFormEditorService, Unit] =
+    ZIO.serviceWithZIO[RecipeFormEditorService](_.removeIngredient(id, ingredient))
 
   def addTag(id: String, tag: String): RIO[RecipeFormEditorService, Unit] =
     ZIO.serviceWithZIO[RecipeFormEditorService](_.addTag(id, tag))
@@ -134,14 +134,14 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
   def updateWaitingTime(id: String, minutes: Int): Task[Unit] =
     sendUpdateCommand(ref => UpdateWaitingTime(id, minutes, ref))
 
-  def addIngridient(id: String, ingridient: String, amount: Int, unit: IngridientUnit): Task[Unit] =
-    sendUpdateCommand(ref => AddIngridient(id, ingridient, amount, unit, ref))
+  def addIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit] =
+    sendUpdateCommand(ref => AddIngredient(id, ingredient, amount, unit, ref))
 
-  def updateIngridient(id: String, ingridient: String, amount: Int, unit: IngridientUnit): Task[Unit] =
-    sendUpdateCommand(ref => AdjustIngridientAmount(id, ingridient, amount, unit, ref))
+  def updateIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit] =
+    sendUpdateCommand(ref => AdjustIngredientAmount(id, ingredient, amount, unit, ref))
 
-  def removeIngridient(id: String, ingridient: String): Task[Unit] =
-    sendUpdateCommand(ref => RemoveIngridient(id, ingridient, ref))
+  def removeIngredient(id: String, ingredient: String): Task[Unit] =
+    sendUpdateCommand(ref => RemoveIngredient(id, ingredient, ref))
 
   def addTag(id: String, tag: String): Task[Unit] =
     sendUpdateCommand(ref => AddTag(id, tag, ref))

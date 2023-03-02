@@ -6,5 +6,5 @@ import subscription.RecipeHub
 import persistent.RecipeFormEditorService
 
 object GraphQLSchema:
-  val api: GraphQL[RecipeService & RecipeHub & RecipeTagService & IngridientService & RecipeFormEditorService] =
-    RecipeSchema.api |+| RecipeTagSchema.api |+| IngridientSchema.api |+| RecipeFormEditorSchema.api
+  val api: GraphQL[RecipeService & RecipeHub & RecipeTagService & IngredientService & RecipeFormEditorService] =
+    RecipeSchema.api |+| RecipeTagSchema.api |+| IngredientSchema.api |+| RecipeFormEditorSchema.api

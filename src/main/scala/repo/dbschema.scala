@@ -17,7 +17,7 @@ inline def recipes = quote {
 
 inline def tags = quote(querySchema[RecipeTag]("tags"))
 
-inline def ingridients = quote(querySchema[Ingridient]("ingridients"))
+inline def ingredients = quote(querySchema[Ingredient]("ingredients"))
 
 inline def recipe2tags = quote {
   querySchema[Recipe2TagDB](
@@ -27,11 +27,11 @@ inline def recipe2tags = quote {
   )
 }
 
-inline def recipe2ingridients = quote {
-  querySchema[Recipe2IngridientDB](
-    "recipe2ingridients",
+inline def recipe2ingredients = quote {
+  querySchema[Recipe2IngredientDB](
+    "recipe2ingredients",
     _.recipeId     -> "recipe_id",
-    _.ingridientId -> "ingridient_id",
+    _.ingredientId -> "ingredient_id",
     _.amount       -> "amount",
     _.unit         -> "unit"
   )

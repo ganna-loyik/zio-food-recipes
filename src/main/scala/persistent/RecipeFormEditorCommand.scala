@@ -34,24 +34,24 @@ final case class UpdateWaitingTime(id: String, minutes: Int, replyTo: ActorRef[R
   extends RecipeFormEditorCommand
      with UpdateCommand
 
-final case class AddIngridient(
+final case class AddIngredient(
   id: String,
-  ingridient: String,
+  ingredient: String,
   amount: Int,
-  unit: IngridientUnit,
+  unit: IngredientUnit,
   replyTo: ActorRef[RecipeFormEditorResponse]
 ) extends RecipeFormEditorCommand
      with UpdateCommand
 
-final case class RemoveIngridient(id: String, ingridient: String, replyTo: ActorRef[RecipeFormEditorResponse])
+final case class RemoveIngredient(id: String, ingredient: String, replyTo: ActorRef[RecipeFormEditorResponse])
   extends RecipeFormEditorCommand
      with UpdateCommand
 
-final case class AdjustIngridientAmount(
+final case class AdjustIngredientAmount(
   id: String,
-  ingridient: String,
+  ingredient: String,
   amount: Int,
-  unit: IngridientUnit,
+  unit: IngredientUnit,
   replyTo: ActorRef[RecipeFormEditorResponse]
 ) extends RecipeFormEditorCommand
      with UpdateCommand

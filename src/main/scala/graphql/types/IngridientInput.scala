@@ -1,5 +1,5 @@
 package graphql.types
 
-import domain.IngridientUnit
+import domain.IngredientUnit
 
-case class IngridientInput(name: String, amount: Int, unit: IngridientUnit)
+case class IngredientInput(name: String, amount: Int, unit: IngredientUnit)

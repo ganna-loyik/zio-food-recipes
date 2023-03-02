@@ -24,7 +24,7 @@ object PostgresRunnableSpec extends ZIOSpecDefault:
       preparationTimeMinutes = 30,
       waitingTimeMinutes = 30,
       tags = Set("breakfast"),
-      ingridients = Map("apple" -> (100, IngridientUnit.Gram))
+      ingredients = Map("apple" -> (100, IngredientUnit.Gram))
     )
 
   override def spec =
