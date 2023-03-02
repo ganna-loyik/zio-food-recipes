@@ -67,36 +67,36 @@ object RecipeFormEditor {
           .persist(WaitingTimeUpdated(recipeFormId, minutes))
           .thenReply(replyTo)(_ => DoneResponse(StatusReply.ack))
 
-      case AddIngridient(recipeFormId, ingridient, amount, unit, replyTo) =>
-        if (state.hasIngridient(ingridient))
+      case AddIngredient(recipeFormId, ingredient, amount, unit, replyTo) =>
+        if (state.hasIngredient(ingredient))
           Effect.unhandled.thenReply(replyTo)(_ =>
-            DoneResponse(StatusReply.Error(s"Ingridient '$ingridient' was already added to this recipe form"))
+            DoneResponse(StatusReply.Error(s"Ingredient '$ingredient' was already added to this recipe form"))
           )
         else if (amount <= 0)
           Effect.unhandled.thenReply(replyTo)(_ => DoneResponse(StatusReply.Error(s"Amount must be greater than zero")))
         else
           Effect
-            .persist(IngridientAdded(recipeFormId, ingridient, amount, unit))
+            .persist(IngredientAdded(recipeFormId, ingredient, amount, unit))
             .thenReply(replyTo)(_ => DoneResponse(StatusReply.ack))
 
-      case RemoveIngridient(recipeFormId, ingridient, replyTo) =>
-        if (state.hasIngridient(ingridient))
+      case RemoveIngredient(recipeFormId, ingredient, replyTo) =>
+        if (state.hasIngredient(ingredient))
           Effect
-            .persist(IngridientRemoved(recipeFormId, ingridient))
+            .persist(IngredientRemoved(recipeFormId, ingredient))
             .thenReply(replyTo)(_ => DoneResponse(StatusReply.ack))
-        else Effect.reply(replyTo)(DoneResponse(StatusReply.error(s"No ingridient $ingridient")))
+        else Effect.reply(replyTo)(DoneResponse(StatusReply.error(s"No ingredient $ingredient")))
 
-      case AdjustIngridientAmount(recipeFormId, ingridient, amount, unit, replyTo) =>
+      case AdjustIngredientAmount(recipeFormId, ingredient, amount, unit, replyTo) =>
         if (amount <= 0)
           Effect.unhandled.thenReply(replyTo)(_ => DoneResponse(StatusReply.Error(s"Amount must be greater than zero")))
-        else if (state.hasIngridient(ingridient))
+        else if (state.hasIngredient(ingredient))
           Effect
-            .persist(IngridientAmountAdjusted(recipeFormId, ingridient, amount, unit))
+            .persist(IngredientAmountAdjusted(recipeFormId, ingredient, amount, unit))
             .thenReply(replyTo)(_ => DoneResponse(StatusReply.ack))
         else
           Effect.unhandled.thenReply(replyTo)(_ =>
             DoneResponse(
-              StatusReply.Error(s"Cannot adjust amount for ingridient '$ingridient' as it isn't in recipe form")
+              StatusReply.Error(s"Cannot adjust amount for ingredient '$ingredient' as it isn't in recipe form")
             )
           )
 
@@ -142,9 +142,9 @@ object RecipeFormEditor {
           case InstructionsUpdated(_, instructions)                  => state.updateInstructions(instructions)
           case PreparationTimeUpdated(_, minutes)                    => state.updatePrepationTime(minutes)
           case WaitingTimeUpdated(_, minutes)                        => state.updateWaitingTime(minutes)
-          case IngridientAdded(_, ingridient, amount, unit)          => state.updateIngridient(ingridient, amount, unit)
-          case IngridientRemoved(_, ingridient)                      => state.removeIngridient(ingridient)
-          case IngridientAmountAdjusted(_, ingridient, amount, unit) => state.updateIngridient(ingridient, amount, unit)
+          case IngredientAdded(_, ingredient, amount, unit)          => state.updateIngredient(ingredient, amount, unit)
+          case IngredientRemoved(_, ingredient)                      => state.removeIngredient(ingredient)
+          case IngredientAmountAdjusted(_, ingredient, amount, unit) => state.updateIngredient(ingredient, amount, unit)
           case TagAdded(_, tag)                                      => state.addTag(tag)
           case TagRemoved(_, tag)                                    => state.removeTag(tag)
           case Saved(id)                                             => RecipeFormSavedState(id, state.form)

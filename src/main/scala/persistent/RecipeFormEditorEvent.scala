@@ -14,14 +14,14 @@ final case class InstructionsUpdated(recipeFormId: String, instructions: String)
 final case class PreparationTimeUpdated(recipeFormId: String, minutes: Int)      extends RecipeFormEditorEvent
 final case class WaitingTimeUpdated(recipeFormId: String, minutes: Int)          extends RecipeFormEditorEvent
 
-final case class IngridientAdded(recipeFormId: String, ingridient: String, amount: Int, unit: IngridientUnit)
+final case class IngredientAdded(recipeFormId: String, ingredient: String, amount: Int, unit: IngredientUnit)
   extends RecipeFormEditorEvent
-final case class IngridientRemoved(recipeFormId: String, ingridient: String) extends RecipeFormEditorEvent
-final case class IngridientAmountAdjusted(
+final case class IngredientRemoved(recipeFormId: String, ingredient: String) extends RecipeFormEditorEvent
+final case class IngredientAmountAdjusted(
   recipeFormId: String,
-  ingridient: String,
+  ingredient: String,
   newAmount: Int,
-  unit: IngridientUnit
+  unit: IngredientUnit
 ) extends RecipeFormEditorEvent
 
 final case class TagAdded(recipeFormId: String, tag: String)   extends RecipeFormEditorEvent

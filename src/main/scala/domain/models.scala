@@ -11,18 +11,18 @@ object RecipeTag {
   given recipeTagSchema: Schema[Any, RecipeTag] = obj("RecipeTag")(implicit ft => List(field("name")(_.name)))
 }
 
-case class IngridientId(value: Long) extends AnyVal
+case class IngredientId(value: Long) extends AnyVal
 
-case class Ingridient(id: IngridientId = IngridientId(0), name: String)
+case class Ingredient(id: IngredientId = IngredientId(0), name: String)
 
-object Ingridient {
-  given ingridientSchema: Schema[Any, Ingridient] =
-    obj("Ingridient")(implicit ft => List(field("id")(_.id.value), field("name")(_.name)))
+object Ingredient {
+  given ingredientSchema: Schema[Any, Ingredient] =
+    obj("Ingredient")(implicit ft => List(field("id")(_.id.value), field("name")(_.name)))
 }
 
-enum IngridientUnit(val abbreviated: String):
-  case Gram       extends IngridientUnit("g")
-  case Milliliter extends IngridientUnit("ml")
+enum IngredientUnit(val abbreviated: String):
+  case Gram       extends IngredientUnit("g")
+  case Milliliter extends IngredientUnit("ml")
 
 case class RecipeId(value: Long) extends AnyVal
 
@@ -34,7 +34,7 @@ case class Recipe(
   preparationTimeMinutes: Int,
   waitingTimeMinutes: Int,
   tags: Set[String],
-  ingridients: Map[String, (Int, IngridientUnit)]
+  ingredients: Map[String, (Int, IngredientUnit)]
 )
 
 object Recipe {
@@ -50,9 +50,9 @@ object Recipe {
         s"It takes ${r.preparationTimeMinutes} min for prepare and then ${r.waitingTimeMinutes} min to wait"
       ),
       field("tags")(_.tags),
-      field("ingridients")(r =>
-        r.ingridients.map { case (ingr, (amount, unit)) => s"$ingr -- $amount ${unit.abbreviated}"}.mkString(",\n")
-      ),
+      field("ingredients")(r =>
+        r.ingredients.map { case (ingr, (amount, unit)) => s"$ingr -- $amount ${unit.abbreviated}" }.mkString(",\n")
+      )
     )
   )
 }

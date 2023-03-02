@@ -9,7 +9,7 @@ case class CreateRecipeInput(
   preparationTimeMinutes: Int,
   waitingTimeMinutes: Int,
   tags: Set[String],
-  ingridients: Seq[IngridientInput]
+  ingredients: Seq[IngredientInput]
 ):
   def toRecipe: Recipe =
     Recipe(
@@ -19,5 +19,5 @@ case class CreateRecipeInput(
       preparationTimeMinutes = preparationTimeMinutes,
       waitingTimeMinutes = waitingTimeMinutes,
       tags = tags,
-      ingridients = ingridients.map(ingr => ingr.name -> (ingr.amount, ingr.unit)).toMap
+      ingredients = ingredients.map(ingr => ingr.name -> (ingr.amount, ingr.unit)).toMap
     )

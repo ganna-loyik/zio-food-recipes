@@ -6,7 +6,7 @@ import org.postgresql.util.PGobject
 
 case class Recipe2TagDB(recipeId: RecipeId, tagId: RecipeTagId)
 
-case class Recipe2IngridientDB(recipeId: RecipeId, ingridientId: IngridientId, amount: Int, unit: IngridientUnit)
+case class Recipe2IngredientDB(recipeId: RecipeId, ingredientId: IngredientId, amount: Int, unit: IngredientUnit)
 
 case class RecipeDB(
   id: RecipeId,
@@ -18,7 +18,7 @@ case class RecipeDB(
 ):
   def toRecipe(
     tagDBs: Seq[RecipeTag],
-    recipe2ingridientDBs: Seq[(Recipe2IngridientDB, Ingridient)]
+    recipe2ingredientDBs: Seq[(Recipe2IngredientDB, Ingredient)]
   ): Recipe = {
     Recipe(
       id = id,
@@ -28,7 +28,7 @@ case class RecipeDB(
       preparationTimeMinutes = preparationTimeMinutes,
       waitingTimeMinutes = waitingTimeMinutes,
       tags = tagDBs.map(_.name).toSet,
-      ingridients = recipe2ingridientDBs.map(row => row._2.name -> (row._1.amount, row._1.unit)).toMap
+      ingredients = recipe2ingredientDBs.map(row => row._2.name -> (row._1.amount, row._1.unit)).toMap
     )
   }
 

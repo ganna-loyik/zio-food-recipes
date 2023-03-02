@@ -19,5 +19,5 @@ case class UpdateRecipeInput(
       preparationTimeMinutes = preparationTimeMinutes,
       waitingTimeMinutes = waitingTimeMinutes,
       tags = Set(),
-      ingridients = Map()
+      ingredients = Map()
     )
