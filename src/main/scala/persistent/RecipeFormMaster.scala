@@ -61,11 +61,6 @@ object RecipeFormMaster {
                 DoneResponse(StatusReply.error(s"Recipe form editor $id cannot be found"))
               )
           }
-
-        case command =>
-          println("-" * 100)
-          println(command)
-          Effect.none
       }
 
   private def eventHandler(
