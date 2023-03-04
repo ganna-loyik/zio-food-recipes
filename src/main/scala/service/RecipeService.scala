@@ -1,7 +1,7 @@
 package service
 
 import zio.*
-import domain.{DomainError, Recipe, RecipeId}
+import domain.{DomainError, Recipe, RecipeFilters, RecipeId, RecipeSorting, SortingOrder}
 
 trait RecipeService:
   def addRecipe(recipe: Recipe): UIO[RecipeId]
@@ -10,7 +10,11 @@ trait RecipeService:
 
   def deleteRecipe(id: RecipeId): UIO[Unit]
 
-  def getAllRecipes(): UIO[List[Recipe]]
+  def getAllRecipes(
+    filters: Option[RecipeFilters],
+    sorting: RecipeSorting,
+    sortingOrder: SortingOrder
+  ): UIO[List[Recipe]]
 
   def getRecipeById(id: RecipeId): UIO[Option[Recipe]]
 
@@ -24,8 +28,12 @@ object RecipeService:
   def deleteRecipe(id: RecipeId): URIO[RecipeService, Unit] =
     ZIO.serviceWithZIO[RecipeService](_.deleteRecipe(id))
 
-  def getAllRecipes(): URIO[RecipeService, List[Recipe]] =
-    ZIO.serviceWithZIO[RecipeService](_.getAllRecipes())
+  def getAllRecipes(
+    filters: Option[RecipeFilters],
+    sorting: RecipeSorting,
+    sortingOrder: SortingOrder
+  ): URIO[RecipeService, List[Recipe]] =
+    ZIO.serviceWithZIO[RecipeService](_.getAllRecipes(filters, sorting, sortingOrder))
 
   def getRecipeById(id: RecipeId): URIO[RecipeService, Option[Recipe]] =
     ZIO.serviceWithZIO[RecipeService](_.getRecipeById(id))

@@ -15,6 +15,8 @@ inline def recipes = quote {
   )
 }
 
+inline def recipesDynamic = recipes.dynamic
+
 inline def tags = quote(querySchema[RecipeTag]("tags"))
 
 inline def ingredients = quote(querySchema[Ingredient]("ingredients"))

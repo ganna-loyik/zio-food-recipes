@@ -12,7 +12,7 @@ final class RecipeTagRepositoryLive(ds: DataSource) extends RecipeTagRepository:
   private val dsLayer = ZLayer(ZIO.succeed(ds))
 
   def getAll(): IO[RepositoryError, List[RecipeTag]] = {
-    run(tags.sortBy(_.id))
+    run(tags.sortBy(_.name))
       .mapError(RepositoryError(_))
       .provide(dsLayer)
   }

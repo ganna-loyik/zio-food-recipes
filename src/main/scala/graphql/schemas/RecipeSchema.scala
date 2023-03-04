@@ -11,7 +11,7 @@ import service.RecipeService
 import subscription.RecipeHub
 
 object RecipeSchema:
-  case class Queries(recipe: IdArg => URIO[RecipeService, Option[Recipe]], recipes: URIO[RecipeService, List[Recipe]])
+  case class Queries(recipe: IdArg => URIO[RecipeService, Option[Recipe]], recipes: GetRecipesInput => URIO[RecipeService, List[Recipe]])
 
   case class Mutations(
     addRecipe: CreateRecipeInput => URIO[RecipeService & RecipeHub, Long],
@@ -23,7 +23,7 @@ object RecipeSchema:
 
   val queries = Queries(
     arg => RecipeService.getRecipeById(RecipeId(arg.id)),
-    RecipeService.getAllRecipes()
+    form => RecipeService.getAllRecipes(form.filters, form.sorting, form.sortingOrder)
   )
 
   val mutations = Mutations(

@@ -11,7 +11,7 @@ trait RecipeRepository:
 
   def delete(id: RecipeId): IO[RepositoryError, Unit]
 
-  def getAll(): IO[RepositoryError, List[Recipe]]
+  def getAll(filters: Option[RecipeFilters], sorting: RecipeSorting, sortingOrder: SortingOrder): IO[RepositoryError, List[Recipe]]
 
   def getById(id: RecipeId): IO[RepositoryError, Option[Recipe]]
 
@@ -25,8 +25,8 @@ object RecipeRepository:
   def delete(id: RecipeId): ZIO[RecipeRepository, RepositoryError, Unit] =
     ZIO.serviceWithZIO[RecipeRepository](_.delete(id))
 
-  def getAll(): ZIO[RecipeRepository, RepositoryError, List[Recipe]] =
-    ZIO.serviceWithZIO[RecipeRepository](_.getAll())
+  def getAll(filters: Option[RecipeFilters], sorting: RecipeSorting, sortingOrder: SortingOrder): ZIO[RecipeRepository, RepositoryError, List[Recipe]] =
+    ZIO.serviceWithZIO[RecipeRepository](_.getAll(filters, sorting, sortingOrder))
 
   def getById(id: RecipeId): ZIO[RecipeRepository, RepositoryError, Option[Recipe]] =
     ZIO.serviceWithZIO[RecipeRepository](_.getById(id))

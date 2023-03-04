@@ -12,7 +12,7 @@ final class IngredientRepositoryLive(ds: DataSource) extends IngredientRepositor
   private val dsLayer = ZLayer(ZIO.succeed(ds))
 
   def getAll(): IO[RepositoryError, List[Ingredient]] = {
-    run(ingredients.sortBy(_.id))
+    run(ingredients.sortBy(_.name))
       .mapError(RepositoryError(_))
       .provide(dsLayer)
   }
