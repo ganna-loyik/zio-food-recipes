@@ -1,6 +1,7 @@
 package repo
 
 import io.getquill.*
+import io.getquill.ast.{AscNullsLast, DescNullsLast}
 import zio.{IO, ZIO, ZLayer}
 
 import domain.*
@@ -61,9 +62,27 @@ final class RecipeRepositoryLive(ds: DataSource) extends RecipeRepository:
       .provide(dsLayer)
   }
 
-  def getAll(): IO[RepositoryError, List[Recipe]] = {
+  def getAll(
+    filters: Option[RecipeFilters],
+    sorting: RecipeSorting,
+    sortingOrder: SortingOrder
+  ): IO[RepositoryError, List[Recipe]] = {
+    val filteredRecipes = recipesDynamic
+      .filterOpt(filters.flatMap(_.name))((row, str) => quote(row.name.toLowerCase.like("%" + str.toLowerCase + "%")))
+      .filterOpt(filters.flatMap(_.preparationTimeTo))((row, minutes) => quote(row.preparationTimeMinutes <= minutes))
+      .filterOpt(filters.flatMap(_.waitingTimeTo))((row, minutes) => quote(row.waitingTimeMinutes <= minutes))
+
+    val order = sortingOrder match
+      case SortingOrder.Ascending  => AscNullsLast
+      case SortingOrder.Descending => DescNullsLast
+
+    val sortedRecipes = sorting match
+      case RecipeSorting.Name            => filteredRecipes.sortBy(_.name)(Ord(order))
+      case RecipeSorting.PreparationTime => filteredRecipes.sortBy(_.preparationTimeMinutes)(Ord(order))
+      case _                             => filteredRecipes.sortBy(_.id)(Ord(order))
+
     val action = for {
-      recipeDBs     <- run(recipes)
+      recipeDBs     <- run(sortedRecipes)
       recipeIds      = recipeDBs.map(_.id)
       tagDBs        <- run(
         recipe2tags.filter(row => liftQuery(recipeIds).contains(row.recipeId)).join(tags).on(_.tagId == _.id)
@@ -77,9 +96,18 @@ final class RecipeRepositoryLive(ds: DataSource) extends RecipeRepository:
     } yield {
       val tagMap = tagDBs.groupBy(_._1.recipeId).view.mapValues(_.map(_._2))
       val ingredientMap = ingredientDBs.groupBy(_._1.recipeId)
-      recipeDBs.map(recipeDB =>
+
+      val recipes = recipeDBs.map(recipeDB =>
         recipeDB.toRecipe(tagMap.getOrElse(recipeDB.id, Seq()), ingredientMap.getOrElse(recipeDB.id, Seq()))
       )
+      val recipesFilteredByTags =
+        if (filters.map(_.tags).getOrElse(Set()).isEmpty) recipes
+        else recipes.filter(recipe => filters.get.tags.intersect(recipe.tags).nonEmpty)
+      val result =
+        if (filters.map(_.ingredients).getOrElse(Set()).isEmpty) recipesFilteredByTags
+        else recipes.filter(recipe => filters.get.ingredients.intersect(recipe.ingredients.keySet).nonEmpty)
+
+      result
     }
 
     action

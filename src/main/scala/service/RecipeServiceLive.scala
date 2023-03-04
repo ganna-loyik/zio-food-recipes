@@ -13,8 +13,8 @@ final class RecipeServiceLive(repo: RecipeRepository) extends RecipeService:
   def deleteRecipe(id: RecipeId): UIO[Unit] =
     repo.delete(id).orDie
 
-  def getAllRecipes(): UIO[List[Recipe]] =
-    repo.getAll().orDie
+  def getAllRecipes(filters: Option[RecipeFilters], sorting: RecipeSorting, sortingOrder: SortingOrder): UIO[List[Recipe]] =
+    repo.getAll(filters, sorting, sortingOrder).orDie
 
   def getRecipeById(id: RecipeId): UIO[Option[Recipe]] =
     repo.getById(id).orDie

@@ -56,3 +56,20 @@ object Recipe {
     )
   )
 }
+
+case class RecipeFilters(
+  name: Option[String],
+  preparationTimeTo: Option[Int],
+  waitingTimeTo: Option[Int],
+  tags: Set[String],
+  ingredients: Set[String]
+)
+
+enum RecipeSorting:
+  case Default         extends RecipeSorting
+  case Name            extends RecipeSorting
+  case PreparationTime extends RecipeSorting
+
+enum SortingOrder:
+  case Ascending  extends SortingOrder
+  case Descending extends SortingOrder
