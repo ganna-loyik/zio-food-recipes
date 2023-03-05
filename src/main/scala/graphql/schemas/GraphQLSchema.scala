@@ -3,7 +3,7 @@ package graphql.schemas
 import caliban.GraphQL
 import service.*
 import subscription.RecipeHub
-import persistent.RecipeFormEditorService
+import persistent.master.RecipeFormEditorService
 
 object GraphQLSchema:
   val api: GraphQL[RecipeService & RecipeHub & RecipeTagService & IngredientService & RecipeFormEditorService] =

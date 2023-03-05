@@ -1,4 +1,4 @@
-package persistent
+package persistent.master
 
 import akka.actor.typed.{ActorRef, ActorSystem, Props, SpawnProtocol}
 import akka.actor.typed.scaladsl.AskPattern._
@@ -6,6 +6,7 @@ import akka.util.Timeout
 import scala.concurrent.duration._
 import zio.*
 import domain.IngredientUnit
+import persistent.common.*
 
 trait RecipeFormEditorService:
   def addRecipeForm(): Task[String]

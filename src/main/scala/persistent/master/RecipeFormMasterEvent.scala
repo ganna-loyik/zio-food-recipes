@@ -1,4 +1,6 @@
-package persistent
+package persistent.master
+
+import persistent.common.CborSerializable
 
 sealed trait RecipeFormMasterEvent extends CborSerializable
 

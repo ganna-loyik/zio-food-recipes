@@ -1,4 +1,6 @@
-package persistent
+package persistent.editor
+
+import persistent.common.*
 
 trait RecipeFormEditorState
 

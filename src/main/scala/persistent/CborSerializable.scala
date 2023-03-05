@@ -1,3 +1,0 @@
-package persistent
-
-trait CborSerializable
