@@ -38,17 +38,17 @@ object RecipeFormMaster {
               Effect.reply(editor)(command)
             case None         =>
               Effect.reply(command.replyTo)(
-                DoneResponse(StatusReply.error(s"Recipe form editor ${command.id} cannot be found"))
+                DoneResponse(Left(Throwable(s"Recipe form editor ${command.id} cannot be found")))
               )
           }
-          
-        case Get(id, replyTo)       =>
+
+        case Get(id, replyTo) =>
           state.editors.get(id) match {
             case Some(editor) =>
               Effect.reply(editor)(command)
             case None         =>
               Effect.reply(replyTo)(
-                GetResponse(StatusReply.error(s"Recipe form editor $id cannot be found"))
+                GetResponse(Left(Throwable(s"Recipe form editor $id cannot be found")))
               )
           }
 
@@ -58,7 +58,7 @@ object RecipeFormMaster {
               Effect.reply(editor)(command)
             case None         =>
               Effect.reply(replyTo)(
-                DoneResponse(StatusReply.error(s"Recipe form editor $id cannot be found"))
+                DoneResponse(Left(Throwable(s"Recipe form editor $id cannot be found")))
               )
           }
       }

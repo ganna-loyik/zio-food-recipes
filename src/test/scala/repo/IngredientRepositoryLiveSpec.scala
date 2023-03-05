@@ -30,7 +30,7 @@ object IngridientRepositoryLiveSpec extends ZIOSpecDefault:
         assert(id2.value)(equalTo(initialNum + 2)) &&
         assert(id3.value)(equalTo(initialNum + 3))
       },
-      test("error when add ingridient with duplicated name") {
+      test("error when adding ingridient with duplicated name") {
         for {
           result <- IngredientRepository.add(Ingredient(name = "first ingredient")).exit
         } yield assert(result.isFailure)(equalTo(true))

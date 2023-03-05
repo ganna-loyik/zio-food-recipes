@@ -9,5 +9,5 @@ case class RecipeForm(
   preparationTimeMinutes: Option[Int],
   waitingTimeMinutes: Option[Int],
   tags: Set[String],
-  ingredients: Map[String, (Int, IngredientUnit)]
+  ingredients: Map[String, (Int, String)]
 )

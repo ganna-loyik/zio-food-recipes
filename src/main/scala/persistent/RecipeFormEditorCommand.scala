@@ -38,7 +38,7 @@ final case class AddIngredient(
   id: String,
   ingredient: String,
   amount: Int,
-  unit: IngredientUnit,
+  unit: String,
   replyTo: ActorRef[RecipeFormEditorResponse]
 ) extends RecipeFormEditorCommand
      with UpdateCommand
@@ -51,7 +51,7 @@ final case class AdjustIngredientAmount(
   id: String,
   ingredient: String,
   amount: Int,
-  unit: IngredientUnit,
+  unit: String,
   replyTo: ActorRef[RecipeFormEditorResponse]
 ) extends RecipeFormEditorCommand
      with UpdateCommand
