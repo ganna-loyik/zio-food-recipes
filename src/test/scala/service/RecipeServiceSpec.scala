@@ -9,6 +9,8 @@ import domain.*
 import service.*
 import service.RecipeService.*
 import repo.*
+import repo.mock.*
+
 object RecipeServiceSpec extends ZIOSpecDefault:
 
   val exampleRecipe: (Long, String) => Recipe = (id, name) =>
