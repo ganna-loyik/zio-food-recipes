@@ -51,7 +51,6 @@ object Main extends ZIOAppDefault:
       _        <- ZIO.attempt(DatabaseMigrator.migrate(dbConfig))
 
       interpreter <- GraphQLSchema.api.interpreter
-      config      <- getConfig[ServerConfig]
 
       recipeFormMasterActorRef <- ZIO.fromFuture(_ =>
         actorSystem.ask[ActorRef[RecipeFormEditorCommand]](
@@ -64,7 +63,8 @@ object Main extends ZIOAppDefault:
         case Method.GET -> !! / "ws" / "graphql" => ZHttpAdapter.makeWebSocketService(interpreter)
       }
 
-      _ <- Server
+      config <- getConfig[ServerConfig]
+      _      <- Server
         .start(config.port, updatedRoutes)
         .provideSomeLayer(ZLayer.succeed(RecipeFormEditorServiceLive(recipeFormMasterActorRef)))
     yield ()

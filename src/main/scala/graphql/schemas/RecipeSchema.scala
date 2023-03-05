@@ -1,5 +1,6 @@
 package graphql.schemas
 
+import caliban.CalibanError.ExecutionError
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import zio.*
@@ -11,7 +12,10 @@ import service.RecipeService
 import subscription.RecipeHub
 
 object RecipeSchema:
-  case class Queries(recipe: IdArg => URIO[RecipeService, Option[Recipe]], recipes: GetRecipesInput => URIO[RecipeService, List[Recipe]])
+  case class Queries(
+    recipe: IdArg => URIO[RecipeService, Option[Recipe]],
+    recipes: GetRecipesInput => URIO[RecipeService, List[Recipe]]
+  )
 
   case class Mutations(
     addRecipe: CreateRecipeInput => URIO[RecipeService & RecipeHub, Long],
@@ -33,7 +37,7 @@ object RecipeSchema:
         recipe   <- RecipeService.getRecipeById(RecipeId(recipeId))
         _        <- RecipeHub.publishRecipe(recipe.get)
       } yield recipeId,
-    form => RecipeService.updateRecipe(form.toRecipe).mapError(e => Throwable(e.msg)),
+    form => RecipeService.updateRecipe(form.toRecipe).mapError(e => ExecutionError(e.msg)),
     arg => RecipeService.deleteRecipe(RecipeId(arg.id))
   )
 
