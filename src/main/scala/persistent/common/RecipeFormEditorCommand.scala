@@ -1,9 +1,7 @@
-package persistent
+package persistent.common
 
 import domain.*
 import akka.actor.typed.ActorRef
-import akka.Done
-import akka.pattern.StatusReply
 
 sealed trait RecipeFormEditorCommand extends CborSerializable
 

@@ -11,7 +11,9 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import domain.*
-import persistent.*
+import persistent.common.*
+import persistent.editor.*
+import persistent.master.*
 
 abstract class ScalaTestWithActorTestKit(testKit: ActorTestKit) extends ActorTestKitBase(testKit) {
   def this(config: Config) = this(ActorTestKit(ActorTestKitBase.testNameFromCallStack(), config))

@@ -1,4 +1,4 @@
-package persistent
+package persistent.common
 
 import domain.*
 

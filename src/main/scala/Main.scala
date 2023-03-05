@@ -15,7 +15,8 @@ import configuration.Configuration.*
 import graphql.schemas.GraphQLSchema
 import healthcheck.*
 import migration.DatabaseMigrator
-import persistent.*
+import persistent.common.*
+import persistent.master.*
 import repo.*
 import service.*
 import subscription.*

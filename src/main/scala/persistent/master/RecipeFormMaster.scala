@@ -1,4 +1,4 @@
-package persistent
+package persistent.master
 
 import akka.Done
 import akka.actor.typed.{ActorRef, Behavior}
@@ -8,6 +8,8 @@ import akka.persistence.typed.PersistenceId
 import akka.persistence.typed.scaladsl.{Effect, EventSourcedBehavior}
 import java.util.UUID
 import zio.{UIO, ZIO}
+import persistent.common.*
+import persistent.editor.*
 
 object RecipeFormMaster {
   def apply(): Behavior[RecipeFormEditorCommand] = {

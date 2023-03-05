@@ -1,0 +1,3 @@
+package persistent.common
+
+trait CborSerializable

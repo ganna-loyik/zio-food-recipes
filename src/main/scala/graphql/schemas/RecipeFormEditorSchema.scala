@@ -6,7 +6,8 @@ import caliban.RootResolver
 import zio.*
 import domain.*
 import graphql.types.editor.*
-import persistent.*
+import persistent.common.*
+import persistent.master.*
 
 object RecipeFormEditorSchema:
   case class Queries(getRecipeForm: RecipeFormIdArg => RIO[RecipeFormEditorService, Summary])

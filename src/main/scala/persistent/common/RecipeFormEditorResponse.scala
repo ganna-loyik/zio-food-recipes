@@ -1,4 +1,4 @@
-package persistent
+package persistent.common
 
 sealed trait RecipeFormEditorResponse extends CborSerializable
 
