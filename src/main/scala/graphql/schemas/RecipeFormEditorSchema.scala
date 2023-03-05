@@ -1,5 +1,6 @@
 package graphql.schemas
 
+import caliban.CalibanError.ExecutionError
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import zio.*
@@ -25,21 +26,35 @@ object RecipeFormEditorSchema:
     saveRecipeForm: RecipeFormIdArg => RIO[RecipeFormEditorService, Unit]
   )
 
-  val queries = Queries(arg => RecipeFormEditorService.getRecipeForm(arg.id))
+  val queries =
+    Queries(arg => RecipeFormEditorService.getRecipeForm(arg.id).mapError(e => ExecutionError(e.getMessage)))
 
   val mutations = Mutations(
-    RecipeFormEditorService.addRecipeForm(),
-    form => RecipeFormEditorService.updateName(form.id, form.name),
-    form => RecipeFormEditorService.updateDescription(form.id, form.description),
-    form => RecipeFormEditorService.updateInstructions(form.id, form.instructions),
-    form => RecipeFormEditorService.updatePreparationTime(form.id, form.minutes),
-    form => RecipeFormEditorService.updateWaitingTime(form.id, form.minutes),
-    form => RecipeFormEditorService.addIngredient(form.id, form.ingredient, form.amount, form.unit),
-    form => RecipeFormEditorService.updateIngredient(form.id, form.ingredient, form.amount, form.unit),
-    form => RecipeFormEditorService.removeIngredient(form.id, form.ingredient),
-    form => RecipeFormEditorService.addTag(form.id, form.tag),
-    form => RecipeFormEditorService.removeTag(form.id, form.tag),
-    arg => RecipeFormEditorService.saveRecipeForm(arg.id)
+    RecipeFormEditorService.addRecipeForm().mapError(e => ExecutionError(e.getMessage)),
+    form => RecipeFormEditorService.updateName(form.id, form.name).mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService.updateDescription(form.id, form.description).mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService
+        .updateInstructions(form.id, form.instructions)
+        .mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService.updatePreparationTime(form.id, form.minutes).mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService.updateWaitingTime(form.id, form.minutes).mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService
+        .addIngredient(form.id, form.ingredient, form.amount, form.unit)
+        .mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService
+        .updateIngredient(form.id, form.ingredient, form.amount, form.unit)
+        .mapError(e => ExecutionError(e.getMessage)),
+    form =>
+      RecipeFormEditorService.removeIngredient(form.id, form.ingredient).mapError(e => ExecutionError(e.getMessage)),
+    form => RecipeFormEditorService.addTag(form.id, form.tag).mapError(e => ExecutionError(e.getMessage)),
+    form => RecipeFormEditorService.removeTag(form.id, form.tag).mapError(e => ExecutionError(e.getMessage)),
+    arg => RecipeFormEditorService.saveRecipeForm(arg.id).mapError(e => ExecutionError(e.getMessage))
   )
 
   val api = graphQL[RecipeFormEditorService, Queries, Mutations, Unit](RootResolver(queries, mutations))

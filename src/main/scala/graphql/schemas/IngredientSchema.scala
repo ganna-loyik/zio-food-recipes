@@ -1,5 +1,6 @@
 package graphql.schemas
 
+import caliban.CalibanError.ExecutionError
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import zio.*
@@ -25,7 +26,7 @@ object IngredientSchema:
 
   val mutations = Mutations(
     form => IngredientService.addIngredient(form.toIngredient).map(_.value),
-    form => IngredientService.updateIngredient(form.toIngredient).mapError(e => Throwable(e.msg)),
+    form => IngredientService.updateIngredient(form.toIngredient).mapError(e => ExecutionError(e.msg)),
     arg => IngredientService.deleteIngredient(IngredientId(arg.id))
   )
 

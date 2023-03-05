@@ -112,7 +112,7 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
   private def sendUpdateCommand(command: ActorRef[RecipeFormEditorResponse] => RecipeFormEditorCommand): Task[Unit] =
     ZIO
       .fromFuture { _ =>
-        recipeFormMaster.ask[RecipeFormEditorResponse](ref => Create(ref))
+        recipeFormMaster.ask[RecipeFormEditorResponse](ref => command(ref))
       }
       .flatMap {
         case DoneResponse(reply) if reply.isSuccess => ZIO.succeed(())
