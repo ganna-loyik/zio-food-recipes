@@ -1,7 +1,5 @@
 package persistent
 
-import domain.IngredientUnit
-
 trait RecipeFormEditorState
 
 final case class RecipeFormOpenState(id: String, form: RecipeForm) extends RecipeFormEditorState {
@@ -29,7 +27,7 @@ final case class RecipeFormOpenState(id: String, form: RecipeForm) extends Recip
   def hasIngredient(ingredient: String): Boolean =
     form.ingredients.contains(ingredient)
 
-  def updateIngredient(ingredient: String, amount: Int, unit: IngredientUnit): RecipeFormEditorState =
+  def updateIngredient(ingredient: String, amount: Int, unit: String): RecipeFormEditorState =
     amount match {
       case 0 => copy(form = form.copy(ingredients = form.ingredients - ingredient))
       case _ => copy(form = form.copy(ingredients = form.ingredients + (ingredient -> (amount, unit))))

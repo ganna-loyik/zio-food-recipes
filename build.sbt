@@ -15,6 +15,7 @@ val jwtCoreVersion = "9.2.0"
 val akkaVersion = "2.7.0"
 val akkaPersistenceJdbc = "5.2.1"
 val jacksonVersion = "2.14.0"
+val scalaTestVersion = "3.2.15"
 
 scalaVersion := "3.2.2"
 name         := "zio-food-recipes"
@@ -57,10 +58,17 @@ lazy val root = (project in file("."))
       "org.testcontainers" % "database-commons"                % testcontainersVersion      % Test,
       "org.testcontainers" % "postgresql"                      % testcontainersVersion      % Test,
       "org.testcontainers" % "jdbc"                            % testcontainersVersion      % Test,
-      "dev.zio"           %% "zio-test-magnolia"               % zioVersion                 % Test
+      "dev.zio"           %% "zio-test-magnolia"               % zioVersion                 % Test,
+      ("com.typesafe.akka" %% "akka-testkit"             % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
+      ("com.typesafe.akka" %% "akka-persistence-testkit" % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
+      //"org.scalactic"      %% "scalactic"                % scalaTestVersion % Test,
+      "org.scalatest"      %% "scalatest"                % scalaTestVersion % Test
     ),
     excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
-    testFrameworks                                 := Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
+    testFrameworks                                 := Seq(
+      new TestFramework("zio.test.sbt.ZTestFramework"),
+      TestFrameworks.ScalaTest
+    )
   )
 
 enablePlugins(JavaAppPackaging)

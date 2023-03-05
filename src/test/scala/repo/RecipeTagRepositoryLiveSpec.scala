@@ -31,7 +31,7 @@ object RecipeTagRepositoryLiveSpec extends ZIOSpecDefault:
         assert(id2.value)(equalTo(initialNum + 2)) &&
         assert(id3.value)(equalTo(initialNum + 3))
       },
-      test("error when add tag with duplicated name") {
+      test("error when adding tag with duplicated name") {
         for {
           result <- RecipeTagRepository.add(RecipeTag(name = "first recipeTag")).exit
         } yield assert(result.isFailure)(equalTo(true))

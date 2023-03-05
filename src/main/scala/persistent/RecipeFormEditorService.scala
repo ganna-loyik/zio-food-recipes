@@ -95,8 +95,8 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
         recipeFormMaster.ask[RecipeFormEditorResponse](ref => Create(ref))
       }
       .flatMap {
-        case CreatedResponse(reply) if reply.isSuccess => ZIO.succeed(reply.getValue)
-        case _                                         => ZIO.fail(Throwable("Failed to add recipe form"))
+        case CreatedResponse(Right(reply)) => ZIO.succeed(reply)
+        case _                             => ZIO.fail(Throwable("Failed to add recipe form"))
       }
 
   def getRecipeForm(id: String): Task[Summary] =
@@ -105,8 +105,8 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
         recipeFormMaster.ask[RecipeFormEditorResponse](ref => Get(id, ref))
       }
       .flatMap {
-        case GetResponse(reply) if reply.isSuccess => ZIO.succeed(reply.getValue)
-        case _                                     => ZIO.fail(Throwable(s"Failed to get recipe form $id"))
+        case GetResponse(Right(reply)) => ZIO.succeed(reply)
+        case _                         => ZIO.fail(Throwable(s"Failed to get recipe form $id"))
       }
 
   private def sendUpdateCommand(command: ActorRef[RecipeFormEditorResponse] => RecipeFormEditorCommand): Task[Unit] =
@@ -115,8 +115,8 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
         recipeFormMaster.ask[RecipeFormEditorResponse](ref => command(ref))
       }
       .flatMap {
-        case DoneResponse(reply) if reply.isSuccess => ZIO.succeed(())
-        case _                                      => ZIO.fail(Throwable("Fail to update recipe form"))
+        case DoneResponse(Right(true)) => ZIO.succeed(())
+        case _                         => ZIO.fail(Throwable("Fail to update recipe form"))
       }
 
   def updateName(id: String, name: String): Task[Unit] =
@@ -135,10 +135,10 @@ final class RecipeFormEditorServiceLive(recipeFormMaster: ActorRef[RecipeFormEdi
     sendUpdateCommand(ref => UpdateWaitingTime(id, minutes, ref))
 
   def addIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit] =
-    sendUpdateCommand(ref => AddIngredient(id, ingredient, amount, unit, ref))
+    sendUpdateCommand(ref => AddIngredient(id, ingredient, amount, unit.toString, ref))
 
   def updateIngredient(id: String, ingredient: String, amount: Int, unit: IngredientUnit): Task[Unit] =
-    sendUpdateCommand(ref => AdjustIngredientAmount(id, ingredient, amount, unit, ref))
+    sendUpdateCommand(ref => AdjustIngredientAmount(id, ingredient, amount, unit.toString, ref))
 
   def removeIngredient(id: String, ingredient: String): Task[Unit] =
     sendUpdateCommand(ref => RemoveIngredient(id, ingredient, ref))
