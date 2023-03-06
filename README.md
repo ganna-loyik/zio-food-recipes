@@ -56,7 +56,7 @@ query get {
 {"type":"start", "payload": {"query": "subscription recipeUpdate { newRecipe { id name } }"}}
 ```
 
-**Migrations**: you can add new database migrations to the `/resources/db/migration` folder; migrations written in Scala can also be applied if the location is specified (ex: `Flyway.configure.locations("default path", "new path")`)
+**Migrations**: you can add new database migrations to the `/resources/db/migration` folder; migrations written in Scala can also be applied if the location is specified (ex: `Flyway.configure().locations("default path", "new path")`)
 
 **New features** that can be implemented:
 - search functionality: use Elasticsearch to index recipes and more advanced searches
@@ -65,4 +65,29 @@ query get {
 - printed recipe cards: provide a printed version of each recipe for users who want to save it for later
 - expanding the recipe model by adding nutritional information, image
 
+## Startup and deployment
+To run the application locally use `sudo docker-compose up` that will create two containers: `pg` for database and `api`. You can add changes to the file `docker-compose.yaml`.
+
+**Creating a Docker image**:
+- see `Dockerfile` and add changes if necessary
+- alternatively, use `sbt docker:stage` after specifying configurations such as build image or exposed ports in `build.sbt`
+- run `sbt docker:publishLocal` (for this `DockerPlugin` should be enabled); also you can publish to the remote repository
+
+**Deploying an application with Kubernetes (locally) using Kustomization**:
+- `k8s/kustomization.tmpl.yaml` - defines the resources needed to run the application, such as volumes, services, etc. and generators for `ConfigMap` and `Secret`
+- `k8s/api` - contains deployment and service for api. You should have local image named `zio-food-recipes`
+- `k8s/db` - contains deployment, service and volume for postgres database
+- install `minikube` to quickly setup a local `Kubernetes` cluster
+- to deploy with `minikube` you need to make a few changes: in services replace type to `type: NodePort` and set `nodePort: 31000`; in database deployment use image `postgres:latest`; remove `images` key from kustomization file
+- run commands in terminal:
+```
+minikube start
+eval $(minikube docker-env)
+```
+- deploy the applicaion using the `kubectl` command line tool and deployment/service objects, or by using `Kustomization`:
+```
+kubectl apply -k k8s
+kubectl get all
+```
+- go to localhost:9000/graphql
 
