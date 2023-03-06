@@ -56,7 +56,7 @@ query get {
 {"type":"start", "payload": {"query": "subscription recipeUpdate { newRecipe { id name } }"}}
 ```
 
-**Migrations**: you can add new database migrations to the `/resources/db/migration` folder; migrations written in Scala can also be applied if the location is specified (ex: `Flyway.configure.locations("default path", "new path")`)
+**Migrations**: you can add new database migrations to the `/resources/db/migration` folder; migrations written in Scala can also be applied if the location is specified (ex: `Flyway.configure().locations("default path", "new path")`)
 
 **New features** that can be implemented:
 - search functionality: use Elasticsearch to index recipes and more advanced searches
@@ -64,5 +64,22 @@ query get {
 - personalized recommendations: use machine learning algorithms to suggest recipes to users based on their previous ratings and searches
 - printed recipe cards: provide a printed version of each recipe for users who want to save it for later
 - expanding the recipe model by adding nutritional information, image
+
+##Startup and deployment
+To run the application locally use `sudo docker-compose up` that will create two containers: `pg` for database and `api`. You can add changes to the file `docker-compose.yaml`.
+
+Creating a Docker image:
+- see `Dockerfile` and add changes if necessary
+- specify configurations such as build image or exposed ports in `build.sbt`
+- run `sbt docker:publishLocal` (for this `DockerPlugin` should be enabled) or you can publish to the remote repository
+
+Deploying an application with Kubernetes (locally) using Kustomization:
+- `k8s/kustomization.tmpl.yaml` -- Kubernetes manifest file that defines the resources needed to run the application, such as pods, services, and volumes. Using customization.
+Create a Kubernetes cluster with a master node and one or more worker nodes - minikube will create the cluster and nodes for you.
+Deploy the application using the kubectl command line tool and deployment/service objects or run the kustomization file.
+(Optional) Scale the application with the kubectl command line tool by changing the number of running replicas
+Go to localhost:9000/graphql
+
+
 
 
