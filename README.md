@@ -2,7 +2,15 @@
 I'm developing a web application here, which is a great way to practice my coding skills and create something I can share with others.
 
 **Used libraries/tools**:
-Scala 3, ZIO, Quill, Akka Typed Actor/Persistence, Caliban, Flyway, Docker, Docker Compose, Kubernetes, Kustomization, AWS
+- Scala 3
+- ZIO
+- Quill
+- Akka Typed Actor/Persistence
+- Caliban
+- Flyway
+- Docker, Docker Compose, 
+- Kubernetes, Kustomization
+- AWS
 
 **Description**: the web app is linked to cooking recipes and helps users find inspiration for their next meal. It now includes features such as creating and filling out a recipe form, subscribing to updates, recipes submitted by users, searching by tags, ingredients, filtering by name or cooking time, downloading recipes, etc.
 
