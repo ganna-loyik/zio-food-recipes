@@ -3,11 +3,11 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "091528600824.dkr.ecr.us-east-1.amazonaws.com/zio-food-recipes",
+      "image": "<$account_id>.dkr.ecr.us-east-1.amazonaws.com/zio-food-recipes",
       "environment": [
         {
           "name": "JDBC_DATABASE_URL",
-          "value": "jdbc:postgresql://postgres-db.cfxkbemp4ds1.us-east-1.rds.amazonaws.com:5432/recipes"
+          "value": "jdbc:postgresql://<$db_endpoint>:5432/recipes"
         },
         {
           "name": "JDBC_DATABASE_USER",

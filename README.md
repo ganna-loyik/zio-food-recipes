@@ -100,15 +100,62 @@ kubectl get all
 - go to localhost:9000/graphql
 
 ### Deploy to Amazon Elastic Container Service (ECS):
-- create a Docker image and pust it to EC2
-- create an `ECS` cluster using `AWS CLI`
-- use `Amazon RDS` to set up a database with `PostgreSQL` engine, add database `recipes`:
-- create an `ECS task definition` - a blueprint describing how to run your application. It includes information such as the Docker image used, CPU and memory requirements, port mapping, etc.
-- use a custom security group, which allows connection to port 9000 from your IP (inbound rules)
-- create an `ECS service`, which runs your task definition and manages its lifecycle
-- go to the address given in ...
+- create a Docker image and pust it to ECR
+- create an `ECS` cluster
+- use `Amazon RDS` to set up a database instance with `PostgreSQL` engine, add database `recipes`; now `JDBC_DATABASE_URL` should be equal to the endpoint from the `Connectivity & security` tab
+- create an `ECS task definition` - a blueprint describing how to run your application. It includes information such as the Docker image used, CPU and memory requirements, port mapping, etc. Example is in the file `aws/task-defition.json`
+- create an `ECS service`, which runs your task definition and manages its lifecycle: 
+  - use a custom security group, where connection to port 9000 from your IP is allowed (inbound rules)
+  - turn on public IP
+  - other configurations can be left by default
+- go to `Configuration` tab in the task and use `Public IP` to verify that application is running
 
-### Deploy to Amazon Elastic Kubernetes Service (EKS):
-- create a Docker image of the app and pust it to `EC2`; use a public image for the database.
-- create an `EKS` cluster, where `Kubernetes` workloads run
-- TODO
+Deployment is also done in the github action `.github/workflows/deploy_ecs.yml`
+
+### Deploy to Amazon Elastic Kubernetes Service (EKS)
+
+Sample action on github is `.github/workflows/deploy_eks.yml`. It uses `k8s/kustomization.tmpl.yaml`
+In order to make it work:
+- create role `eksClusterRole` with `AmazonEKSClusterPolicy` permission policy
+- create role `eksNodeRole` with `AmazonEKSWorkerNodePolicy`, `AmazonEC2ContainerRegistryReadOnly`, `AmazonEKS_CNI_Policy` policies
+- start creating an `EKS cluster`, where `Kubernetes` workloads will run:
+  - set cluster service role to `eksClusterRole`
+  - choose security group which allows the incoming traffic from port 9000 and `public` endpoint access
+  - other configurations can be left by default
+- add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` to actions secrets
+- create `kubeconfig.yaml` ([guide](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)), it should look like this:
+```
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: $certificate_data
+    server: $cluster_endpoint
+  name: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+contexts:
+- context:
+    cluster: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+    user: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+  name: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+current-context: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:$region_code:$account_id:cluster/$cluster_name
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - --region
+      - us-east-1
+      - eks
+      - get-token
+      - --cluster-name
+      - MyCluster
+      command: aws
+      interactiveMode: IfAvailable
+      provideClusterInfo: false
+```
+- generate `KUBECONFIG` and add it to actions secrets:
+```
+cat kubeconfig.yaml | base64 -b 0 > KUBECONFIG
+```
