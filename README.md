@@ -16,7 +16,7 @@ I'm developing a web application here, which is a great way to practice my codin
 
 **Datamodel**: each recipe includes name, description, list of ingredients, tags (used for recipe categories such as breakfast, vegetarian), step-by-step instructions for cooking, time required.
 
-**Authentication**: users need to get a token (go to http://localhost:9000/login/:yourlogin/:password) by giving a username and password (currently `test`) and then provide that token when they send requests: `"Authorization": "Bearer <yourToken>"`.
+**Authentication**: users need to get a token (go to http://localhost:9000/login/:yourlogin/:password) by giving a username and password (currently it should be `test`) and then provide that token when they send requests: `"Authorization": "Bearer <yourToken>"`.
 
 **Recipe submission**: users can submit their own recipes by editing the recipe form step by step if they can't fill in all the fields at once. They must also add all new ingredients and tags to the registers, if any. Go to http://localhost:9000/graphql
 ```
@@ -86,7 +86,10 @@ To run the application locally use `sudo docker-compose up` that will create two
 - `k8s/api` - contains deployment and service for api. You should have local image named `zio-food-recipes`
 - `k8s/db` - contains deployment, service and volume for postgres database
 - install `minikube` to quickly setup a local `Kubernetes` cluster
-- to deploy with `minikube` you need to make a few changes: in services replace type to `type: NodePort` and set `nodePort: 31000`; in database deployment use image `postgres:latest`; remove `images` key from kustomization file
+- to deploy with `minikube` you need to make a few changes
+  - in services replace type to `type: NodePort` and set `nodePort: 31000`
+  - in database deployment use image `postgres:latest`
+  - remove `images` key from kustomization file
 - run commands in terminal:
 ```
 minikube start
@@ -97,33 +100,34 @@ eval $(minikube docker-env)
 kubectl apply -k k8s
 kubectl get all
 ```
-- go to localhost:9000/graphql
+- go to http://localhost:9000/graphql
 
 ### Deploy to Amazon Elastic Container Service (ECS):
-- create a Docker image and pust it to ECR
-- create an `ECS` cluster
-- use `Amazon RDS` to set up a database instance with `PostgreSQL` engine, add database `recipes`; now `JDBC_DATABASE_URL` should be equal to the endpoint from the `Connectivity & security` tab
-- create an `ECS task definition` - a blueprint describing how to run your application. It includes information such as the Docker image used, CPU and memory requirements, port mapping, etc. Example is in the file `aws/task-defition.json`
-- create an `ECS service`, which runs your task definition and manages its lifecycle: 
-  - use a custom security group, where connection to port 9000 from your IP is allowed (inbound rules)
-  - turn on public IP
-  - other configurations can be left by default
-- go to `Configuration` tab in the task and use `Public IP` to verify that application is running
+1. create a Docker image and pust it to ECR
+2. create an `ECS` cluster
+3. use `Amazon RDS` to set up a database instance with `PostgreSQL` engine, add database `recipes`; now `JDBC_DATABASE_URL` should be equal to the endpoint from the `Connectivity & security` tab
+4. create an `ECS task definition` - a blueprint describing how to run your application. It includes information such as the Docker image used, CPU and memory requirements, port mapping, etc. Example is in the file `aws/task-defition.json`
+5. create an `ECS service`, which runs your task definition and manages its lifecycle: 
+    1. use a custom security group, where connection to port 9000 from your IP is allowed (inbound rules)
+    2. turn on public IP
+    3. other configurations can be left by default
+6. go to `Configuration` tab in the task and use `Public IP` to verify that application is running
 
 Deployment is also done in the github action `.github/workflows/deploy_ecs.yml`
 
 ### Deploy to Amazon Elastic Kubernetes Service (EKS)
 
 Sample action on github is `.github/workflows/deploy_eks.yml`. It uses `k8s/kustomization.tmpl.yaml`
+
 In order to make it work:
-- create role `eksClusterRole` with `AmazonEKSClusterPolicy` permission policy
-- create role `eksNodeRole` with `AmazonEKSWorkerNodePolicy`, `AmazonEC2ContainerRegistryReadOnly`, `AmazonEKS_CNI_Policy` policies
-- start creating an `EKS cluster`, where `Kubernetes` workloads will run:
-  - set cluster service role to `eksClusterRole`
-  - choose security group which allows the incoming traffic from port 9000 and `public` endpoint access
-  - other configurations can be left by default
-- add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` to actions secrets
-- create `kubeconfig.yaml` ([guide](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)), it should look like this:
+1. create role `eksClusterRole` with `AmazonEKSClusterPolicy` permission policy
+2. create role `eksNodeRole` with `AmazonEKSWorkerNodePolicy`, `AmazonEC2ContainerRegistryReadOnly`, `AmazonEKS_CNI_Policy` policies
+3. start creating an `EKS cluster`, where `Kubernetes` workloads will run:
+    1. set cluster service role to `eksClusterRole`
+    2. choose security group which allows the incoming traffic from port 9000 and `public` endpoint access
+    3. other configurations can be left by default
+4. add `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` to actions secrets
+5. create `kubeconfig.yaml` ([guide](https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html)), it should look like this:
 ```
 apiVersion: v1
 clusters:
@@ -155,7 +159,7 @@ users:
       interactiveMode: IfAvailable
       provideClusterInfo: false
 ```
-- generate `KUBECONFIG` and add it to actions secrets:
+6. generate `KUBECONFIG` and add it to actions secrets:
 ```
 cat kubeconfig.yaml | base64 -b 0 > KUBECONFIG
 ```
