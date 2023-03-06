@@ -68,12 +68,12 @@ query get {
 ## Startup and deployment
 To run the application locally use `sudo docker-compose up` that will create two containers: `pg` for database and `api`. You can add changes to the file `docker-compose.yaml`.
 
-**Creating a Docker image**:
+**Create a Docker image**:
 - see `Dockerfile` and add changes if necessary
 - alternatively, use `sbt docker:stage` after specifying configurations such as build image or exposed ports in `build.sbt`
 - run `sbt docker:publishLocal` (for this `DockerPlugin` should be enabled); also you can publish to the remote repository
 
-**Deploying an application with Kubernetes (locally) using Kustomization**:
+### Deploy an application with Kubernetes (locally) using Kustomization:
 - `k8s/kustomization.tmpl.yaml` - defines the resources needed to run the application, such as volumes, services, etc. and generators for `ConfigMap` and `Secret`
 - `k8s/api` - contains deployment and service for api. You should have local image named `zio-food-recipes`
 - `k8s/db` - contains deployment, service and volume for postgres database
@@ -91,3 +91,16 @@ kubectl get all
 ```
 - go to localhost:9000/graphql
 
+### Deploy to Amazon Elastic Container Service (ECS):
+- create a Docker image and pust it to EC2
+- create an `ECS` cluster using `AWS CLI`
+- use `Amazon RDS` to set up a database with `PostgreSQL` engine, add database `recipes`:
+- create an `ECS task definition` - a blueprint describing how to run your application. It includes information such as the Docker image used, CPU and memory requirements, port mapping, etc.
+- use a custom security group, which allows connection to port 9000 from your IP (inbound rules)
+- create an `ECS service`, which runs your task definition and manages its lifecycle
+- go to the address given in ...
+
+### Deploy to Amazon Elastic Kubernetes Service (EKS):
+- create a Docker image of the app and pust it to `EC2`; use a public image for the database.
+- create an `EKS` cluster, where `Kubernetes` workloads run
+- TODO
