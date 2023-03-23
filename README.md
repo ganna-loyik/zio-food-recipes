@@ -8,7 +8,7 @@ I'm developing a web application here, which is a great way to practice my codin
 - Akka Typed Actor/Persistence
 - Caliban
 - Flyway
-- Docker, Docker Compose, 
+- Docker, Docker Compose 
 - Kubernetes, Kustomization
 - AWS
 
@@ -63,6 +63,12 @@ query get {
 {"type":"connection_init"}
 {"type":"start", "payload": {"query": "subscription recipeUpdate { newRecipe { id name } }"}}
 ```
+
+**Caliban client**: you can use the client to send graphql queires or mutations using Scala. To generate code, start the appication and run the command:
+```
+calibanGenClient http://localhost:9000/graphql src/main/scala/Client.scala
+```
+Find an example of use in tests.
 
 **Migrations**: you can add new database migrations to the `/resources/db/migration` folder; migrations written in Scala can also be applied if the location is specified (ex: `Flyway.configure().locations("default path", "new path")`)
 

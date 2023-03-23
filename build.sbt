@@ -36,6 +36,7 @@ lazy val root = (project in file("."))
       "org.postgresql"         % "postgresql"                 % postgresqlVersion,
       "com.github.ghostdogpr" %% "caliban"                    % calibanVersion,
       "com.github.ghostdogpr" %% "caliban-zio-http"           % calibanVersion,
+      "com.github.ghostdogpr" %% "caliban-client"             % calibanVersion,
       "org.flywaydb"           % "flyway-core"                % flywayVersion,
       "dev.zio"               %% "zio"                        % zioVersion,
       "dev.zio"               %% "zio-streams"                % zioVersion,
@@ -61,7 +62,7 @@ lazy val root = (project in file("."))
       "dev.zio"           %% "zio-test-magnolia"               % zioVersion                 % Test,
       ("com.typesafe.akka" %% "akka-testkit"             % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
       ("com.typesafe.akka" %% "akka-persistence-testkit" % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
-      //"org.scalactic"      %% "scalactic"                % scalaTestVersion % Test,
+      // "org.scalactic"      %% "scalactic"                % scalaTestVersion % Test,
       "org.scalatest"      %% "scalatest"                % scalaTestVersion % Test
     ),
     excludeDependencies += "org.scala-lang.modules" % "scala-collection-compat_2.13",
@@ -73,6 +74,7 @@ lazy val root = (project in file("."))
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
+enablePlugins(CalibanPlugin)
 
 dockerExposedPorts := Seq(9000)
 dockerBaseImage    := "eclipse-temurin:11"

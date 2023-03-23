@@ -7,3 +7,4 @@
 .vscode
 metals.sbt
 postgres-data
+.bsp

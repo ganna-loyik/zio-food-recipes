@@ -11,3 +11,4 @@ postgres-data
 kubeconfig.yaml
 KUBECONFIG
 aws-auth-configmap.yaml
+.bsp
