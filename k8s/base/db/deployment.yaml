@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: db
-          image: public.ecr.aws/docker/library/postgres:latest
+          image: postgres:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5432

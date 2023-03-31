@@ -88,14 +88,11 @@ To run the application locally use `sudo docker-compose up` that will create two
 - run `sbt docker:publishLocal` (for this `DockerPlugin` should be enabled); also you can publish to the remote repository
 
 ### Deploy an application with Kubernetes (locally) using Kustomization:
-- `k8s/kustomization.tmpl.yaml` - defines the resources needed to run the application, such as volumes, services, etc. and generators for `ConfigMap` and `Secret`
-- `k8s/api` - contains deployment and service for api. You should have local image named `zio-food-recipes`
-- `k8s/db` - contains deployment, service and volume for postgres database
+- `k8s/base/kustomization.yaml` - defines the resources needed to run the application, such as volumes, services, etc. and generators for `ConfigMap` and `Secret`
+- `k8s/local/kustomization.yaml` - contains patches for local run
+- `k8s/base/api` - contains deployment and service for api. You should have local image named `zio-food-recipes`
+- `k8s/base/db` - contains deployment, service and volume for postgres database
 - install `minikube` to quickly setup a local `Kubernetes` cluster
-- to deploy with `minikube` you need to make a few changes
-  - in services replace type to `type: NodePort` and set `nodePort: 31000`
-  - in database deployment use image `postgres:latest`
-  - remove `images` key from kustomization file
 - run commands in terminal:
 ```
 minikube start
@@ -103,7 +100,7 @@ eval $(minikube docker-env)
 ```
 - deploy the applicaion using the `kubectl` command line tool and deployment/service objects, or by using `Kustomization`:
 ```
-kubectl apply -k k8s
+kubectl apply -k k8s/local
 kubectl get all
 ```
 - go to http://localhost:9000/graphql
@@ -123,7 +120,7 @@ Deployment is also done in the github action `.github/workflows/deploy_ecs.yml`
 
 ### Deploy to Amazon Elastic Kubernetes Service (EKS)
 
-Sample action on github is `.github/workflows/deploy_eks.yml`. It uses `k8s/kustomization.tmpl.yaml`
+Sample action on github is `.github/workflows/deploy_eks.yml`. It uses `k8s/aws/kustomization.tmpl.yaml`, which adds patches for image, service type, etc.
 
 In order to make it work:
 1. create role `eksClusterRole` with `AmazonEKSClusterPolicy` permission policy

@@ -17,7 +17,3 @@ secretGenerator:
     literals:
       - username=postgres
       - password=postgres
-images:
-  - name: zio-food-recipes
-    newName: ${ECR_REPOSITORY}
-    newTag: ${IMAGE_TAG}
