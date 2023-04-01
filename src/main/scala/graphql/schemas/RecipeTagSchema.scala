@@ -1,13 +1,14 @@
 package graphql.schemas
 
-import caliban.GraphQL.graphQL
+import caliban.graphQL
 import caliban.RootResolver
+import caliban.schema.ArgBuilder.auto.*
+import caliban.schema.Schema.auto.*
 import zio.*
 import domain.*
 import graphql.types.*
 import RecipeTag.recipeTagSchema
 import service.RecipeTagService
-import caliban.schema.Schema
 
 object RecipeTagSchema:
   case class Queries(recipeTags: URIO[RecipeTagService, List[RecipeTag]])

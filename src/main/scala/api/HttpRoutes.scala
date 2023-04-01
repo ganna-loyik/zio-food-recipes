@@ -1,8 +1,8 @@
 package api
 
-import zhttp.http.*
-import zhttp.service.*
 import zio.*
+import zio.http.*
+import zio.http.model.*
 import zio.json.*
 import zio.stream.ZStream
 import domain.{DomainError, Recipe, RecipeId}
@@ -13,9 +13,9 @@ import java.nio.charset.StandardCharsets
 
 object HttpRoutes:
 
-  val app: HttpApp[RecipeService, Nothing] =
-    Http.collectHttp[Request] { case Method.GET -> !! / "graphql" =>
-      Http.fromStream(ZStream.fromResource("graphiql.html"))
+  val app: HttpApp[RecipeService, Throwable] =
+    Http.collectRoute[Request] { case Method.GET -> !! / "graphql" =>
+      Handler.fromStream(ZStream.fromResource("graphiql.html")).toHttp
     } ++
       Http.collectZIO { case Method.GET -> !! / "recipes" / id =>
         RecipeService

@@ -1,6 +1,7 @@
 package healthcheck
 
-import zhttp.http.*
+import zio.http.*
+import zio.http.model.*
 import zio.test.*
 import zio.test.Assertion.*
 
@@ -8,8 +9,9 @@ object HealthcheckSpec extends ZIOSpecDefault:
   def spec = suite("http")(
     suite("health check")(
       test("ok status") {
-        val actual = Healthcheck.routes(Request(method = Method.GET, url = URL(!! / "health")))
-        assertZIO(actual)(equalTo(Response(Status.NoContent, Headers.empty, HttpData.empty)))
+        val request = Request.default(method = Method.GET, url = URL(!! / "health"))
+        val actual = Healthcheck.routes.runZIO(request)
+        assertZIO(actual)(equalTo(Response(Status.NoContent)))
       }
     )
   )

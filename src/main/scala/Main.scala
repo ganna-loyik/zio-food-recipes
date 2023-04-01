@@ -2,16 +2,16 @@ import caliban.ZHttpAdapter
 import javax.sql.DataSource
 import io.getquill.context.ZioJdbc.*
 import io.getquill.jdbczio.Quill
-import zhttp.http.*
-import zhttp.service.*
-import zhttp.service.server.ServerChannelFactory
+import sttp.tapir.json.zio.*
 import zio.*
 import zio.config.*
+import zio.http.*
+import zio.http.model.*
 import zio.stream.*
 
 import api.*
 import auth.*
-import configuration.Configuration.*
+import configuration.Configuration.{ServerConfig as CustomServerConfig, *}
 import graphql.schemas.GraphQLSchema
 import healthcheck.*
 import migration.DatabaseMigrator
@@ -36,13 +36,13 @@ object Main extends ZIOAppDefault:
 
   private val dataSourceLayer = Quill.DataSource.fromPrefix("postgres-db")
 
-  val routes: HttpApp[RecipeService & LoginService, Throwable] =
-    api.HttpRoutes.app ++
+  val routes: App[RecipeService & LoginService] =
+    (api.HttpRoutes.app ++
       Healthcheck.routes ++
-      AuthRoutes.app
+      AuthRoutes.app).withDefaultErrorResponse
 
   val program: ZIO[
-    DbConfig & ServerConfig & LoginService & RecipeService & RecipeHub & RecipeTagService & JwtDecoder &
+    DbConfig & CustomServerConfig & LoginService & RecipeService & RecipeHub & RecipeTagService & JwtDecoder &
       IngredientService,
     Throwable,
     Unit
@@ -59,15 +59,19 @@ object Main extends ZIOAppDefault:
         )
       )
 
-      updatedRoutes = routes ++ Http.collectHttp[Request] {
-        case Method.POST -> !! / "graphql" => ZHttpAdapter.makeHttpService(interpreter) @@ AuthMiddleware.middleware
-        case Method.GET -> !! / "ws" / "graphql" => ZHttpAdapter.makeWebSocketService(interpreter)
-      }
+      calibanRoutes = Http
+        .collectRoute[Request] {
+          case Method.POST -> !! / "graphql" => ZHttpAdapter.makeHttpService(interpreter) @@ AuthMiddleware.middleware
+          case Method.GET -> !! / "ws" / "graphql" => ZHttpAdapter.makeWebSocketService(interpreter)
+        }
+        .withDefaultErrorResponse
 
-      config <- getConfig[ServerConfig]
-      _      <- Server
-        .start(config.port, updatedRoutes)
+      config <- getConfig[CustomServerConfig]
+
+      port <- Server
+        .serve(calibanRoutes ++ routes)
         .provideSomeLayer(ZLayer.succeed(RecipeFormEditorServiceLive(recipeFormMasterActorRef)))
+        .provideSomeLayer(Server.defaultWithPort(config.port))
     yield ()
 
   override val run =
@@ -75,7 +79,7 @@ object Main extends ZIOAppDefault:
       JwtDecoderLive.layer,
       JwtEncoderLive.layer,
       LoginServiceLive.layer,
-      ServerConfig.layer,
+      CustomServerConfig.layer,
       DbConfig.layer,
       RecipeRepositoryLive.layer,
       RecipeServiceLive.layer,

@@ -1,6 +1,7 @@
 package auth
 
-import zhttp.http.*
+import zio.http.*
+import zio.http.model.*
 
 object AuthRoutes:
   val app: HttpApp[LoginService, Nothing] = Http.collectZIO[Request] {

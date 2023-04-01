@@ -1,9 +1,9 @@
 package auth
 
-import zhttp.http.middleware.HttpMiddleware
-import zhttp.http.Middleware.bearerAuthZIO
+import zio.http.HttpAppMiddleware.bearerAuthZIO
+import zio.http.RequestHandlerMiddleware
 import zio.ZIO
 
 object AuthMiddleware:
-  val middleware: HttpMiddleware[JwtDecoder, Nothing] =
+  val middleware: RequestHandlerMiddleware[Nothing, JwtDecoder, Nothing, Any] =
     bearerAuthZIO(token => ZIO.serviceWith[JwtDecoder](_.decode(token).isDefined))

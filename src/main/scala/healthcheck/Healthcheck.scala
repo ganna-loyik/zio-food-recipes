@@ -1,7 +1,8 @@
 package healthcheck
 
 import zio.*
-import zhttp.http.*
+import zio.http.*
+import zio.http.model.*
 
 object Healthcheck:
 
