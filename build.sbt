@@ -17,6 +17,7 @@ val akkaVersion = "2.7.0"
 val akkaPersistenceJdbc = "5.2.1"
 val jacksonVersion = "2.14.0"
 val scalaTestVersion = "3.2.15"
+val sttpVersion = "3.8.14"
 
 scalaVersion := "3.2.2"
 name         := "zio-food-recipes"
@@ -50,12 +51,13 @@ lazy val root = (project in file("."))
       "dev.zio"                       %% "zio-test-sbt"               % zioVersion     % Test,
       "dev.zio"                       %% "zio-test-junit"             % zioVersion     % Test,
       "dev.zio"                       %% "zio-mock"                   % zioMockVersion % Test,
-      "com.dimafeng"      %% "testcontainers-scala-postgresql" % testcontainersScalaVersion % Test,
-      "org.testcontainers" % "testcontainers"                  % testcontainersVersion      % Test,
-      "org.testcontainers" % "database-commons"                % testcontainersVersion      % Test,
-      "org.testcontainers" % "postgresql"                      % testcontainersVersion      % Test,
-      "org.testcontainers" % "jdbc"                            % testcontainersVersion      % Test,
-      "dev.zio"           %% "zio-test-magnolia"               % zioVersion                 % Test,
+      "com.dimafeng"                  %% "testcontainers-scala-postgresql" % testcontainersScalaVersion % Test,
+      "org.testcontainers"             % "testcontainers"                  % testcontainersVersion      % Test,
+      "org.testcontainers"             % "database-commons"                % testcontainersVersion      % Test,
+      "org.testcontainers"             % "postgresql"                      % testcontainersVersion      % Test,
+      "org.testcontainers"             % "jdbc"                            % testcontainersVersion      % Test,
+      "dev.zio"                       %% "zio-test-magnolia"               % zioVersion                 % Test,
+      "com.softwaremill.sttp.client3" %% "zio"                             % sttpVersion                % Test,
       ("com.typesafe.akka" %% "akka-testkit"             % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
       ("com.typesafe.akka" %% "akka-persistence-testkit" % akkaVersion      % Test).cross(CrossVersion.for3Use2_13),
       // "org.scalactic"      %% "scalactic"                % scalaTestVersion % Test,
